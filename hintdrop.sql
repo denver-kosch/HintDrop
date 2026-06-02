@@ -15,48 +15,6 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-DROP DATABASE IF EXISTS `hintdrop`;
-CREATE DATABASE IF NOT EXISTS `hintdrop` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */;
-USE `hintdrop`;
---
--- Table structure for table `gifts`
---
-
-DROP TABLE IF EXISTS `gifts`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `gifts` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `list_id` int NOT NULL,
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `price` decimal(10,2) DEFAULT NULL,
-  `url` varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `image_url` varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `quantity` int NOT NULL DEFAULT '1',
-  `priority` enum('low','medium','high') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `reserved_by_user_id` int DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `gifts_list_id_index` (`list_id`),
-  KEY `gifts_reserved_by_user_id_index` (`reserved_by_user_id`),
-  CONSTRAINT `gifts_list_id_foreign` FOREIGN KEY (`list_id`) REFERENCES `lists` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `gifts_reserved_by_user_id_foreign` FOREIGN KEY (`reserved_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `gifts_quantity_check` CHECK ((`quantity` > 0))
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `gifts`
---
-
-LOCK TABLES `gifts` WRITE;
-/*!40000 ALTER TABLE `gifts` DISABLE KEYS */;
-INSERT INTO `gifts` VALUES (1,1,'Sony WH-1000XM5 Headphones','Noise cancelling headphones',349.99,'https://www.amazon.com/',NULL,1,'high',2,'2026-05-21 10:06:18','2026-05-21 10:06:18'),(2,1,'Steam Gift Card','Wallet funds for games',50.00,NULL,NULL,2,'medium',NULL,'2026-05-21 10:06:18','2026-05-21 10:06:18'),(3,2,'RTX 5070','GPU upgrade for gaming PC',699.99,NULL,NULL,1,'high',NULL,'2026-05-21 10:06:18','2026-05-21 10:06:18'),(4,3,'Wedding Venue Decorations','Decor inspiration pieces',200.00,NULL,NULL,1,'medium',1,'2026-05-21 10:06:18','2026-05-21 10:06:18'),(5,4,'Elgato Stream Deck','Streaming control pad',149.99,NULL,NULL,1,'low',NULL,'2026-05-21 10:06:18','2026-05-21 10:06:18');
-/*!40000 ALTER TABLE `gifts` ENABLE KEYS */;
-UNLOCK TABLES;
-
 --
 -- Table structure for table `lists`
 --
@@ -66,15 +24,12 @@ DROP TABLE IF EXISTS `lists`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `lists` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `owner_id` int NOT NULL,
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `is_shareable` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `lists_owner_id_index` (`owner_id`),
-  CONSTRAINT `lists_owner_id_foreign` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -84,46 +39,13 @@ CREATE TABLE `lists` (
 
 LOCK TABLES `lists` WRITE;
 /*!40000 ALTER TABLE `lists` DISABLE KEYS */;
-INSERT INTO `lists` VALUES (1,1,'Denver Birthday Wishlist','Things Denver wants for birthday',1,'2026-05-21 10:06:18','2026-05-21 10:06:18'),(2,1,'Private Tech Upgrades','Personal hardware planning',0,'2026-05-21 10:06:18','2026-05-21 10:06:18'),(3,2,'Alice Wedding Ideas','Wedding registry and ideas',1,'2026-05-21 10:06:18','2026-05-21 10:06:18'),(4,3,'Bob Gaming Setup','Streaming and gaming gear',1,'2026-05-21 10:06:18','2026-05-21 10:06:18');
+INSERT INTO `lists` VALUES (1,'Denver Birthday Wishlist','Things Denver wants for birthday',1,'2026-05-21 10:06:18','2026-05-21 10:06:18'),(2,'Private Tech Upgrades','Personal hardware planning',0,'2026-05-21 10:06:18','2026-05-21 10:06:18'),(3,'Alice Wedding Ideas','Wedding registry and ideas',1,'2026-05-21 10:06:18','2026-05-21 10:06:18'),(4,'Bob Gaming Setup','Streaming and gaming gear',1,'2026-05-21 10:06:18','2026-05-21 10:06:18');
 /*!40000 ALTER TABLE `lists` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
 -- Table structure for table `user_lists`
 --
-
-DROP TABLE IF EXISTS `user_lists`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `user_lists` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int NOT NULL,
-  `list_id` int NOT NULL,
-  `role` enum('editor','viewer','owner') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'viewer',
-  `last_opened_at` datetime DEFAULT NULL,
-  `pinned_at` datetime DEFAULT NULL,
-  `archived_at` datetime DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `user_lists_list_id_user_id_unique` (`user_id`,`list_id`),
-  UNIQUE KEY `user_lists_user_id_list_id` (`user_id`,`list_id`),
-  KEY `list_id` (`list_id`),
-  KEY `user_lists_user_id_archived_at_pinned_at_last_opened_at` (`user_id`,`archived_at`,`pinned_at`,`last_opened_at`),
-  CONSTRAINT `user_lists_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `user_lists_ibfk_2` FOREIGN KEY (`list_id`) REFERENCES `lists` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `user_lists`
---
-
-LOCK TABLES `user_lists` WRITE;
-/*!40000 ALTER TABLE `user_lists` DISABLE KEYS */;
-/*!40000 ALTER TABLE `user_lists` ENABLE KEYS */;
-UNLOCK TABLES;
-
 --
 -- Table structure for table `userlists`
 --
@@ -236,3 +158,43 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2026-05-28 21:56:52
+
+
+--
+-- Table structure for table `gifts`
+--
+
+DROP TABLE IF EXISTS `gifts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `gifts` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `list_id` int NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `price` decimal(10,2) DEFAULT NULL,
+  `url` varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `image_url` varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `quantity` int NOT NULL DEFAULT '1',
+  `priority` enum('low','medium','high') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reserved_by_user_id` int DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `gifts_list_id_index` (`list_id`),
+  KEY `gifts_reserved_by_user_id_index` (`reserved_by_user_id`),
+  CONSTRAINT `gifts_list_id_foreign` FOREIGN KEY (`list_id`) REFERENCES `lists` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `gifts_reserved_by_user_id_foreign` FOREIGN KEY (`reserved_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `gifts_quantity_check` CHECK ((`quantity` > 0))
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `gifts`
+--
+
+LOCK TABLES `gifts` WRITE;
+/*!40000 ALTER TABLE `gifts` DISABLE KEYS */;
+INSERT INTO `gifts` VALUES (1,1,'Sony WH-1000XM5 Headphones','Noise cancelling headphones',349.99,'https://www.amazon.com/',NULL,1,'high',2,'2026-05-21 10:06:18','2026-05-21 10:06:18'),(2,1,'Steam Gift Card','Wallet funds for games',50.00,NULL,NULL,2,'medium',NULL,'2026-05-21 10:06:18','2026-05-21 10:06:18'),(3,2,'RTX 5070','GPU upgrade for gaming PC',699.99,NULL,NULL,1,'high',NULL,'2026-05-21 10:06:18','2026-05-21 10:06:18'),(4,3,'Wedding Venue Decorations','Decor inspiration pieces',200.00,NULL,NULL,1,'medium',1,'2026-05-21 10:06:18','2026-05-21 10:06:18'),(5,4,'Elgato Stream Deck','Streaming control pad',149.99,NULL,NULL,1,'low',NULL,'2026-05-21 10:06:18','2026-05-21 10:06:18');
+/*!40000 ALTER TABLE `gifts` ENABLE KEYS */;
+UNLOCK TABLES;

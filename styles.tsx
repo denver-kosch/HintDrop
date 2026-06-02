@@ -1,5 +1,6 @@
 import { ColorSchemeName, ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { EdgeInsets } from 'react-native-safe-area-context';
 
 /**
  * HintDrop theme
@@ -81,7 +82,7 @@ const getTheme = (colorScheme: ColorSchemeName) => {
   } as const;
 };
 
-const createBaseStyles = (colorScheme: ColorSchemeName) => {
+const createBaseStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
   const theme = getTheme(colorScheme);
 
   return StyleSheet.create({
@@ -179,7 +180,7 @@ const createBaseStyles = (colorScheme: ColorSchemeName) => {
   });
 };
 
-const createHomeStyles = (colorScheme: ColorSchemeName) => {
+const createHomeStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
   const base = createBaseStyles(colorScheme);
 
   return StyleSheet.create({
@@ -189,7 +190,7 @@ const createHomeStyles = (colorScheme: ColorSchemeName) => {
   });
 };
 
-const createLoginStyles = (colorScheme: ColorSchemeName) => {
+const createLoginStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
   const base = createBaseStyles(colorScheme);
 
   return StyleSheet.create({
@@ -202,7 +203,7 @@ const createLoginStyles = (colorScheme: ColorSchemeName) => {
   });
 };
 
-const createProfileStyles = (colorScheme: ColorSchemeName) => {
+const createProfileStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
   const base = createBaseStyles(colorScheme);
   const theme = getTheme(colorScheme);
 
@@ -224,7 +225,7 @@ const createProfileStyles = (colorScheme: ColorSchemeName) => {
   });
 };
 
-const createListStyles = (colorScheme: ColorSchemeName) => {
+const createListStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
   const base = createBaseStyles(colorScheme);
   const theme = getTheme(colorScheme);
 
@@ -298,7 +299,7 @@ const createListStyles = (colorScheme: ColorSchemeName) => {
   });
 };
 
-const createCreateListStyles = (colorScheme: ColorSchemeName) => {
+const createCreateListStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
   const base = createBaseStyles(colorScheme);
 
   return StyleSheet.create({
@@ -316,7 +317,7 @@ const createCreateListStyles = (colorScheme: ColorSchemeName) => {
   });
 };
 
-const createListDetailStyles = (colorScheme: ColorSchemeName) => {
+const createListDetailStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
   const base = createBaseStyles(colorScheme);
 
   return StyleSheet.create({
@@ -389,12 +390,12 @@ const createModalStyles = (colorScheme: ColorSchemeName) => {
   });
 };
 
-export const useHomeStyles = () => createHomeStyles(useColorScheme());
-export const useLoginStyles = () => createLoginStyles(useColorScheme());
-export const useProfileStyles = () => createProfileStyles(useColorScheme());
-export const useListStyles = () => createListStyles(useColorScheme());
-export const useCreateListStyles = () => createCreateListStyles(useColorScheme());
-export const useListDetailStyles = () => createListDetailStyles(useColorScheme());
+export const useHomeStyles = (insets : EdgeInsets) => createHomeStyles(useColorScheme(), insets);
+export const useLoginStyles = (insets : EdgeInsets) => createLoginStyles(useColorScheme(), insets);
+export const useProfileStyles = (insets : EdgeInsets) => createProfileStyles(useColorScheme(), insets);
+export const useListStyles = (insets : EdgeInsets) => createListStyles(useColorScheme(), insets);
+export const useCreateListStyles = (insets : EdgeInsets) => createCreateListStyles(useColorScheme(), insets);
+export const useListDetailStyles = (insets : EdgeInsets) => createListDetailStyles(useColorScheme(), insets);
 export const useModalStyles = () => createModalStyles(useColorScheme());
 
 export type { AppTheme, BaseStyles };

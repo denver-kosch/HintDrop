@@ -6,7 +6,6 @@ import apiCall from '@/services/apiCall';
 import { ListType, RootStackParamList, AuthState } from '@/types';
 import { useSelector } from 'react-redux';
 import PageBreak from '@/components/pagebreak';
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import LoadingIcon from '../components/loadingIcon';
 
 
@@ -22,11 +21,10 @@ const List = () => {
 		useCallback(() => {
 			setGettingLists(true);
 			const fetchLists = async () => {
-				const response = await apiCall('getLists', {owned: true, shared: true}, {"Authorization": `Bearer ${token}`});
+				const response = await apiCall('getLists', {}, {"Authorization": `Bearer ${token}`});
 				if (response.success) setLists(response.lists);
 			};
 			if (token) fetchLists();
-			else setLists({ owned: [], shared: [] });
 			setGettingLists(false);
 		}, [token])
 	);
@@ -53,7 +51,7 @@ const List = () => {
 		<View style={styles.topBar}>
 			<Text style={[styles.header, {width: '50%'}]}>Lists</Text>
 			<TouchableOpacity onPress={() => navigation.navigate('CreateList')}>
-				<Text style={[styles.button]}>Create New List</Text>
+				<Text style={[styles.button]}> + </Text>
 			</TouchableOpacity>
 		</View>
 		<View style={styles.listBlock}>

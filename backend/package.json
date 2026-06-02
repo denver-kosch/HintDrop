@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "Backend functions for Forgift Me Not",
+  "description": "Backend functions for HintDrop",
   "license": "ISC",
   "author": "Denver Kosch",
   "type": "module",

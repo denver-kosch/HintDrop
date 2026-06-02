@@ -8,10 +8,11 @@ import { ThemeProvider, DarkTheme, DefaultTheme } from '@react-navigation/native
 import { useColorScheme } from '@/hooks/useColorScheme';
 import Index from "./index";
 import NotFoundScreen from './+not-found';
-import List from './list';
+import List from './lists';
 import ProfilePage from './profile';
 import LoginPage from './login';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { HomeIcon, ListIcon, ProfileIcon } from '@/hooks/icons';
 import { useEffect, useState } from 'react';
 import CreateList from './createList';
@@ -37,6 +38,7 @@ const TabNavigator = () => {
 	}, []);
 
 	return (
+
 		<Tabs.Navigator
 			screenOptions={({ route }) => ({
 				tabBarIcon: ({ color, size }) => {
@@ -84,14 +86,16 @@ export default function RootLayout() {
 	return (
   	<Provider store={store}>
 		<PersistGate loading={<ActivityIndicator/>} persistor={persistor}>
-			<ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-				<Stack.Navigator>
-					{Screens.map(({ name, component, options }) => (
-						<Stack.Screen key={name} name={name} component={component} options={options} />
-					))}
-				</Stack.Navigator>
-				<StatusBar style="auto" />
-			</ThemeProvider>
+			<SafeAreaProvider>
+				<ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+					<Stack.Navigator>
+						{Screens.map(({ name, component, options }) => (
+							<Stack.Screen key={name} name={name} component={component} options={options} />
+						))}
+					</Stack.Navigator>
+					<StatusBar style="auto" />
+				</ThemeProvider>
+			</SafeAreaProvider>
 		</PersistGate>
 	</Provider>
   );

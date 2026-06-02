@@ -86,14 +86,6 @@ export const List = sequelize.define('List', {
 		autoIncrement: true,
 		primaryKey: true
 	},
-	owner_id: {
-		type: DataTypes.INTEGER,
-		allowNull: false,
-		references: {
-			model: User,
-			key: 'id'
-		}
-	},
 	name: {
 		type: DataTypes.STRING,
 		allowNull: false
@@ -220,6 +212,7 @@ export const UserList = sequelize.define('UserList', {
 }, {
 	timestamps: true,
 	underscored: true,
+	tableName: "userlists",
 	indexes: [
 		{ unique: true, fields: ['user_id', 'list_id'] },
 		{ fields: ["user_id", "archived_at", "pinned_at", "last_opened_at"] }
@@ -250,18 +243,8 @@ export const VerificationToken = sequelize.define('VerificationToken', {
 		allowNull: false
 	}
 }, {
-	timestamps: true
-});
-
-// List owner relationship
-User.hasMany(List, {
-	foreignKey: "owner_id",
-	as: "ownedLists",
-	onDelete: "CASCADE",
-});
-List.belongsTo(User, {
-	foreignKey: "owner_id",
-	as: "owner",
+	timestamps: true,
+	underscored: true
 });
 
 // Shared lists relationship

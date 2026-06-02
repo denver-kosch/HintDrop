@@ -1,17 +1,22 @@
-import { User, List, Gift, UserList } from "../models.js";
+import { User, List, UserList } from "../models.js";
 import { extractToken } from "./authentication.js";
 import { ApiError, makeBackendUrl, handleError } from "../functions.js";
 import { existsSync } from "fs";
+import { Op } from "sequelize";
 
-const flattenMembership = (membership) => ({
-	...membership.list.toJSON(),
-	membership: {
-		role: membership.role,
-		last_opened_at: membership.last_opened_at,
-		pinned_at: membership.pinned_at,
-		archived_at: membership.archived_at,
-	},
-});
+const flattenMembership = (membership) => {
+	const { members, is_shareable, ...listData } = membership.list.toJSON();
+	return {
+		...listData,
+		membership: {
+			role: membership.role,
+			last_opened_at: membership.last_opened_at,
+			pinned_at: membership.pinned_at,
+			archived_at: membership.archived_at,
+		},
+		owner: members[0].username,
+	};
+};
 
 const SAFE_USER_FIELDS = [ "id", "username", "first_name", "last_name", "email", "phone_num", "verified", "admin", "created_at", "updated_at" ];
 
@@ -25,20 +30,43 @@ export const getLists = async (req) => {
 
 		const memberships = await UserList.findAll({
 			where: { user_id: id, archived_at: null },
-			include: [{ model: List, as: "list" }],
-			order: [["pinned_at", "DESC"], ["last_opened_at", "DESC"], [{ model: List, as: "list" }, "updated_at", "DESC"]],
+			include: [
+				{
+					model: List,
+					as: "list",
+					include: [
+						{
+							model: User,
+							as: "members",
+							attributes: ["id", "username"],
+							through: {
+								attributes: ["role"],
+								where: {
+									role: "owner",
+									archived_at: null,
+								},
+							},
+							required: false,
+						},
+					],
+				},
+			],
+			order: [
+				["pinned_at", "DESC"],
+				["last_opened_at", "DESC"],
+				[{ model: List, as: "list" }, "updated_at", "DESC"],
+			],
+		}).then(memberships => memberships.map(flattenMembership));
+
+
+		memberships.forEach(membership => {
+			if (membership.membership.role === "owner") lists.owned.push(membership);
+			else lists.shared.push(membership);
 		});
 
-		for (const membership of memberships) {
-			if (!membership.list) continue;
-
-			const list = flattenMembership(membership);
-			if (membership.role === "owner") lists.owned.push(list);
-			else lists.shared.push(list);
-		}
-		
 		return { status: 200, content: { lists } };
 	} catch (error) {
+		console.error(error);
 		handleError(error);
 	}
 };
@@ -67,25 +95,40 @@ export const getList = async (req) => {
 	}
 };
 
-export const getUser = async (req) => {
+export const getProfileInfo = async (req) => {
 	const id = extractToken(req);
-	const { fields = [] } = req.body;
-
+	
 	try {
 		if (!id) throw new ApiError(401, "Unauthorized");
-		if (!Array.isArray(fields)) throw new ApiError(400, "Fields must be an array");
-
-		const invalidFields = fields.filter(field => !SAFE_USER_FIELDS.includes(field));
-		if (invalidFields.length > 0) throw new ApiError(400, "Invalid user fields requested");
-		const attributes = fields.length > 0 ? fields : SAFE_USER_FIELDS;
-
-		const user = await User.findByPk(id, { attributes });
+		//get user info, as well as the number of owned lists and shared lists
+		const user = await User.findByPk(id, { attributes: SAFE_USER_FIELDS });
 		if (!user) throw new ApiError(404, "User not found");
+
+		const ownedListsCount = await UserList.count({where: { user_id: id, archived_at: null, role: "owner" } });
+		const sharedListsCount = await UserList.count({where: { user_id: id, archived_at: null, role: { [Op.ne]: "owner" } } });
+
 
 		const userData = user.toJSON();
 		userData.profilePic = existsSync(`./public/images/profilePic/${id}.png`) ? makeBackendUrl(`/images/profilePic/${id}.png`) : makeBackendUrl(`/images/profilePic/placeholder.png`);
+		
+		return { status: 200, content: { userData, ownedListsCount, sharedListsCount } };
+	} catch (error) {
+		handleError(error);
+	}
+};
 
-		return { status: 200, content: { userData } };
+export const getUserDetails = async (req) => {
+	const id = extractToken(req);
+	const { fields } = req.body;
+
+	try {
+		if (!id) throw new ApiError(401, "Unauthorized");
+		if (!fields || !Array.isArray(fields) || fields.some(field => !SAFE_USER_FIELDS.includes(field))) throw new ApiError(400, "Invalid fields requested");
+		
+		const user = await User.findByPk(id, { attributes: fields });
+		if (!user) throw new ApiError(404, "User not found");
+
+		return { status: 200, content: { userData: user } };
 	} catch (error) {
 		handleError(error);
 	}

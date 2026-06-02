@@ -18,6 +18,8 @@ const ProfilePage = () => {
     const [pfpMdalVisible, setPfpModalVisible] = useState(false);
     const [editModalVisible, setEditModalVisible] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [ownedListsCount, setOwnedListsCount] = useState(0);
+    const [sharedListsCount, setSharedListsCount] = useState(0);
     
 
     const spinValue = useState(new Animated.Value(0))[0];
@@ -25,8 +27,8 @@ const ProfilePage = () => {
     useEffect(() => {
       Animated.loop(
         Animated.timing(spinValue, {
-          toValue: 1,
-          duration: 1000,
+          toValue: 2,
+          duration: 1500,
           easing: Easing.linear,
           useNativeDriver: true,
         })
@@ -34,20 +36,21 @@ const ProfilePage = () => {
     }, [spinValue]);
 
     const spin = spinValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: ['0deg', '360deg']
+      inputRange: [0, 2],
+      outputRange: ['0deg','360deg']
     });
-
+    
     const fetchProfile = async () => {
         setLoading(true);
         const response = await apiCall(
-            'getUser', 
-            {include: ['id', 'first_name', 'last_name', 'admin', 'phone_num', 'verified', 'username']}, 
+            'getProfileInfo', {},
             {"Authorization": `Bearer ${token}`}
         );
         setLoading(false);
         if (!response?.success) return;
         setProfile(response.userData);
+        setOwnedListsCount(response.ownedListsCount);
+        setSharedListsCount(response.sharedListsCount);
     };
 
     useFocusEffect(
@@ -57,6 +60,7 @@ const ProfilePage = () => {
         }, [token, navigation])
     );
 
+
     const logout = () => {
         dispatch({ type: 'REMOVE_TOKEN' });
         navigation.navigate('Home');
@@ -65,7 +69,7 @@ const ProfilePage = () => {
     if (loading) return (
         <View style={styles.container}>
           <Animated.View style={{ transform: [{ rotate: spin }], marginBottom: 20 }}>
-            <Image src={LoadingIcon} style={{ width: 60, height: 60 }} />
+            <Image source={LoadingIcon} style={{ width: 60, height: 60 }} />
           </Animated.View>
           <Text style={styles.text}>Loading profile...</Text>
         </View>
@@ -83,14 +87,25 @@ const ProfilePage = () => {
             />
 
             <TouchableOpacity style={styles.button} onPress={() => setPfpModalVisible(true)}>
-                <Text style={styles.text}>Change Profile Picture</Text>
+                <Text style={styles.text}>Change Photo</Text>
             </TouchableOpacity>
 
             <PFPModal visible={pfpMdalVisible} setVisible={setPfpModalVisible} fetchProfile={fetchProfile} token={token} />
 
             <Text style={[styles.text, {fontWeight: "bold", fontSize: 20, paddingBottom: 20}]}>
-                {profile?.firstName} {profile?.lastName} <Text style={{ fontStyle: 'italic' }}>(@{profile?.username})</Text>
+                {profile?.first_name} {profile?.lastName} <Text style={{ fontStyle: 'italic' }}>(@{profile?.username})</Text>
             </Text>
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-around', width: '100%', paddingBottom: 20 }}>
+                <View style={{ alignItems: 'center' }}>
+                    <Text style={[styles.text, { fontWeight: 'bold', fontSize: 18 }]}>{ownedListsCount}</Text>
+                    <Text style={styles.text}>Owned Lists</Text>
+                </View>
+                <View style={{ alignItems: 'center' }}>
+                    <Text style={[styles.text, { fontWeight: 'bold', fontSize: 18 }]}>{sharedListsCount}</Text>
+                    <Text style={styles.text}>Shared Lists</Text>
+                </View>
+            </View>
 
             <TouchableOpacity style={styles.button} onPress={() => setEditModalVisible(true)}>
                 <Text style={styles.text}>Edit Profile</Text>
