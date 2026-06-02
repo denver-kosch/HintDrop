@@ -11,9 +11,8 @@ type PFPModalProps = {
   token: string;
 };
 
-const styles = useModalStyles();
-
 const PFPModal: FC<PFPModalProps> = ({ visible, setVisible, fetchProfile, token }) => {
+    const styles = useModalStyles();
     const [image, setImage] = useState<any | null>(null);
 
     const updateProfilePic = async (imageToUpload: any) => {
@@ -69,7 +68,7 @@ const PFPModal: FC<PFPModalProps> = ({ visible, setVisible, fetchProfile, token 
             )}
 
             <TouchableOpacity style={styles.button} onPress={pickImage}>
-            <Text style={styles.text}>Upload New Image</Text>
+            <Text style={styles.buttonText}>Upload New Image</Text>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => setVisible(false)}>

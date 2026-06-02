@@ -1,6 +1,7 @@
+import { useMemo } from 'react';
 import { ColorSchemeName, ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { EdgeInsets } from 'react-native-safe-area-context';
 
 /**
  * HintDrop theme
@@ -16,33 +17,46 @@ import { EdgeInsets } from 'react-native-safe-area-context';
  * />
  */
 
-// Core icon-inspired colors
 export const COLORS = {
-  // Dark neutrals
   void: '#101014',
   jet: '#1B1B21',
   onyx: '#27272F',
   graphite: '#33333B',
   dimGray: '#666673',
 
-  // Text
   white: '#F7F8FA',
   offWhite: '#EDEDED',
   muted: '#B8BCC8',
 
-  // Droplet accents
   crayolaBlue: '#0075F2',
   glowBlue: '#35B7FF',
   aqua: '#72E6FF',
   lavender: '#BDA4FF',
   softLavender: '#E4D9FF',
 
-  // Legacy / warm accents
   cornsilk: '#FFF9E2',
   umber: '#7F675B',
 
   danger: '#FF5C7A',
   success: '#41D39E',
+} as const;
+
+export const SPACING = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  xxl: 28,
+  xxxl: 40,
+} as const;
+
+export const RADIUS = {
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
+  round: 999,
 } as const;
 
 export const DROPLET_GRADIENT = {
@@ -57,79 +71,114 @@ export const APP_BACKGROUND_GRADIENT = {
   end: { x: 1, y: 1 },
 } as const;
 
-type AppTheme = ReturnType<typeof getTheme>;
-type BaseStyles = ReturnType<typeof createBaseStyles>;
-
 const getTheme = (colorScheme: ColorSchemeName) => {
   const isDark = colorScheme !== 'light';
 
   return {
     isDark,
-
     text: isDark ? COLORS.white : '#151518',
     mutedText: isDark ? COLORS.muted : '#555866',
-
     background: isDark ? COLORS.void : COLORS.offWhite,
     surface: isDark ? COLORS.jet : '#FFFFFF',
     elevatedSurface: isDark ? COLORS.onyx : COLORS.cornsilk,
-
     border: isDark ? COLORS.graphite : '#D8D8DF',
     accent: COLORS.crayolaBlue,
     accentGlow: COLORS.glowBlue,
-
     inputBackground: isDark ? COLORS.onyx : '#FFFFFF',
     placeholder: isDark ? COLORS.dimGray : '#777A86',
+    danger: COLORS.danger,
   } as const;
 };
+
+const withSafeBottom = (insets: EdgeInsets, minimum: number = SPACING.xl) => Math.max(insets.bottom, minimum);
+
+type AppTheme = ReturnType<typeof getTheme>;
+type BaseStyles = ReturnType<typeof createBaseStyles>;
 
 const createBaseStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
   const theme = getTheme(colorScheme);
 
   return StyleSheet.create({
-    container: {
+    safeArea: {
       flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
       backgroundColor: theme.background,
-      width: '100%',
     } satisfies ViewStyle,
     screen: {
       flex: 1,
-      backgroundColor: theme.background,
       width: '100%',
+      backgroundColor: theme.background,
+    } satisfies ViewStyle,
+    container: {
+      flex: 1,
+      width: '100%',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: theme.background,
+      paddingHorizontal: SPACING.xl,
+      paddingBottom: withSafeBottom(insets),
+    } satisfies ViewStyle,
+    scrollView: {
+      flex: 1,
+      width: '100%',
+      backgroundColor: theme.background,
+    } satisfies ViewStyle,
+    scrollContent: {
+      flexGrow: 1,
+      width: '100%',
+      paddingHorizontal: SPACING.xl,
+      paddingTop: SPACING.xl,
+      paddingBottom: withSafeBottom(insets),
+    } satisfies ViewStyle,
+    centeredScrollContent: {
+      flexGrow: 1,
+      width: '100%',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: SPACING.xl,
+      paddingVertical: SPACING.xl,
+      paddingBottom: withSafeBottom(insets),
     } satisfies ViewStyle,
     header: {
+      width: '100%',
+      color: theme.text,
       fontSize: 40,
       fontWeight: 'bold',
-      width: '100%',
       textAlign: 'left',
-      paddingHorizontal: 20,
-      color: theme.text,
+      marginBottom: SPACING.xl,
     } satisfies TextStyle,
     centeredHeader: {
+      width: '100%',
+      color: theme.text,
       fontSize: 40,
       fontWeight: 'bold',
-      width: '100%',
       textAlign: 'center',
-      paddingHorizontal: 20,
-      color: theme.text,
+      marginBottom: SPACING.xl,
     } satisfies TextStyle,
     text: {
-      fontSize: 16,
       color: theme.text,
+      fontSize: 16,
     } satisfies TextStyle,
     mutedText: {
-      fontSize: 16,
       color: theme.mutedText,
+      fontSize: 16,
     } satisfies TextStyle,
+    errorText: {
+      color: theme.danger,
+      fontSize: 14,
+      marginBottom: SPACING.lg,
+      textAlign: 'center',
+    } satisfies TextStyle,
+    field: {
+      width: '100%',
+      marginBottom: SPACING.md,
+    } satisfies ViewStyle,
     input: {
-      height: 44,
+      width: '100%',
+      minHeight: 44,
       borderColor: theme.border,
       borderWidth: 1,
-      borderRadius: 12,
-      marginBottom: 20,
-      paddingHorizontal: 12,
-      minWidth: '80%',
+      borderRadius: RADIUS.md,
+      paddingHorizontal: SPACING.md,
       color: theme.text,
       backgroundColor: theme.inputBackground,
     } satisfies TextStyle,
@@ -137,7 +186,7 @@ const createBaseStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
       backgroundColor: theme.surface,
       borderColor: theme.border,
       borderWidth: 1,
-      borderRadius: 16,
+      borderRadius: RADIUS.lg,
       shadowColor: theme.accentGlow,
       shadowOpacity: theme.isDark ? 0.18 : 0.08,
       shadowRadius: 18,
@@ -145,10 +194,11 @@ const createBaseStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
       elevation: 6,
     } satisfies ViewStyle,
     button: {
+      minHeight: 44,
       backgroundColor: theme.accent,
-      paddingVertical: 10,
-      paddingHorizontal: 14,
-      borderRadius: 12,
+      paddingVertical: SPACING.md,
+      paddingHorizontal: SPACING.lg,
+      borderRadius: RADIUS.md,
       alignItems: 'center',
       justifyContent: 'center',
       shadowColor: theme.accentGlow,
@@ -161,14 +211,16 @@ const createBaseStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
       color: COLORS.white,
       textAlign: 'center',
       fontWeight: '700',
+      fontSize: 16,
     } satisfies TextStyle,
     secondaryButton: {
+      minHeight: 44,
       backgroundColor: theme.elevatedSurface,
       borderColor: theme.border,
       borderWidth: 1,
-      paddingVertical: 10,
-      paddingHorizontal: 14,
-      borderRadius: 12,
+      paddingVertical: SPACING.md,
+      paddingHorizontal: SPACING.lg,
+      borderRadius: RADIUS.md,
       alignItems: 'center',
       justifyContent: 'center',
     } satisfies ViewStyle,
@@ -176,159 +228,228 @@ const createBaseStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
       color: theme.text,
       textAlign: 'center',
       fontWeight: '600',
+      fontSize: 16,
     } satisfies TextStyle,
   });
 };
 
 const createHomeStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
-  const base = createBaseStyles(colorScheme);
+  const base = createBaseStyles(colorScheme, insets);
 
   return StyleSheet.create({
-    container: base.container,
+    safeArea: base.safeArea,
+    scrollView: base.scrollView,
+    scrollContent: base.scrollContent,
     header: base.header,
     text: base.text,
   });
 };
 
 const createLoginStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
-  const base = createBaseStyles(colorScheme);
+  const base = createBaseStyles(colorScheme, insets);
 
   return StyleSheet.create({
+    safeArea: base.safeArea,
     container: base.container,
-    header: base.header,
+    form: {
+      ...base.card,
+      width: '100%',
+      maxWidth: 420,
+      padding: SPACING.xl,
+      gap: SPACING.md,
+    } satisfies ViewStyle,
+    field: base.field,
+    header: base.centeredHeader,
     text: base.text,
     input: base.input,
     button: base.button,
     buttonText: base.buttonText,
+    secondaryButton: base.secondaryButton,
+    secondaryButtonText: base.secondaryButtonText,
+    errorText: base.errorText,
   });
 };
 
 const createProfileStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
-  const base = createBaseStyles(colorScheme);
+  const base = createBaseStyles(colorScheme, insets);
   const theme = getTheme(colorScheme);
 
   return StyleSheet.create({
-    container: base.container,
+    safeArea: base.safeArea,
+    scrollView: base.scrollView,
+    scrollContent: {
+      ...base.centeredScrollContent,
+      gap: SPACING.lg,
+    } satisfies ViewStyle,
+    loadingContainer: base.container,
     header: base.centeredHeader,
     text: base.text,
     input: base.input,
     profilePic: {
       height: 125,
       width: 125,
-      marginBottom: 10,
       borderRadius: 62.5,
       borderColor: theme.accentGlow,
       borderWidth: 2,
+      backgroundColor: theme.elevatedSurface,
     } satisfies ImageStyle,
-    button: base.button,
-    buttonText: base.buttonText,
-  });
-};
-
-const createListStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
-  const base = createBaseStyles(colorScheme);
-  const theme = getTheme(colorScheme);
-
-  return StyleSheet.create({
-    container: {
-      ...base.screen,
-      alignItems: 'center',
-      maxWidth: '100%',
-      maxHeight: '100%',
-      paddingTop: 50,
-    } satisfies ViewStyle,
-    header: {
-      ...base.header,
-      fontSize: 48,
-    } satisfies TextStyle,
-    text: base.text,
-    listPreview: {
-      ...base.card,
-      padding: 20,
-      margin: 10,
-    } satisfies ViewStyle,
-    listName: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      color: theme.text,
-    } satisfies TextStyle,
-    listDescription: {
-      fontSize: 16,
-      color: theme.mutedText,
-      marginTop: 4,
-    } satisfies TextStyle,
-    listOwner: {
-      fontSize: 14,
-      color: theme.mutedText,
-      marginTop: 8,
-    } satisfies TextStyle,
-    listLastUpdated: {
-      fontSize: 14,
-      color: theme.mutedText,
-      marginTop: 4,
-    } satisfies TextStyle,
-    listBlock: {
-      ...base.card,
-      width: '95%',
-      minHeight: 200,
-      maxHeight: '40%',
-      marginTop: 20,
-      marginBottom: 20,
-      overflow: 'hidden',
-    } satisfies ViewStyle,
-    topBar: {
+    statsRow: {
       flexDirection: 'row',
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: 'space-around',
       width: '100%',
-      gap: 10,
+      paddingVertical: SPACING.md,
     } satisfies ViewStyle,
+    statItem: {
+      alignItems: 'center',
+      gap: SPACING.xs,
+    } satisfies ViewStyle,
+    statNumber: {
+      ...base.text,
+      fontWeight: 'bold',
+      fontSize: 18,
+    } satisfies TextStyle,
+    profileName: {
+      ...base.text,
+      fontWeight: 'bold',
+      fontSize: 20,
+      textAlign: 'center',
+    } satisfies TextStyle,
     button: base.button,
     buttonText: base.buttonText,
     secondaryButton: base.secondaryButton,
     secondaryButtonText: base.secondaryButtonText,
+  });
+};
+
+const createListStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
+  const base = createBaseStyles(colorScheme, insets);
+  const theme = getTheme(colorScheme);
+
+  return StyleSheet.create({
+    safeArea: base.safeArea,
+    container: {
+      ...base.screen,
+      alignItems: 'center',
+      paddingHorizontal: SPACING.lg,
+      paddingBottom: withSafeBottom(insets),
+    } satisfies ViewStyle,
+    header: {
+      ...base.header,
+      flex: 1,
+      fontSize: 48,
+      marginBottom: 0,
+    } satisfies TextStyle,
+    text: base.text,
+    listPreview: {
+      ...base.card,
+      padding: SPACING.xl,
+      marginHorizontal: SPACING.md,
+      marginVertical: SPACING.sm,
+    } satisfies ViewStyle,
+    listName: {
+      color: theme.text,
+      fontSize: 20,
+      fontWeight: 'bold',
+    } satisfies TextStyle,
+    listDescription: {
+      color: theme.mutedText,
+      fontSize: 16,
+      marginTop: SPACING.xs,
+    } satisfies TextStyle,
+    listOwner: {
+      color: theme.mutedText,
+      fontSize: 14,
+      marginTop: SPACING.sm,
+    } satisfies TextStyle,
+    listLastUpdated: {
+      color: theme.mutedText,
+      fontSize: 14,
+      marginTop: SPACING.xs,
+    } satisfies TextStyle,
+    listBlock: {
+      ...base.card,
+      width: '100%',
+      flex: 1,
+      minHeight: 180,
+      marginVertical: SPACING.lg,
+      overflow: 'hidden',
+    } satisfies ViewStyle,
+    topBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      width: '100%',
+      gap: SPACING.md,
+      paddingTop: SPACING.md,
+    } satisfies ViewStyle,
+    button: base.button,
+    buttonText: base.buttonText,
+    plusButton: {
+      ...base.button,
+      width: 48,
+      height: 48,
+      borderRadius: RADIUS.round,
+      paddingHorizontal: 0,
+      paddingVertical: 0,
+    } satisfies ViewStyle,
+    plusButtonText: {
+      ...base.buttonText,
+      fontSize: 28,
+      lineHeight: 30,
+    } satisfies TextStyle,
+    emptyState: {
+      ...base.text,
+      padding: SPACING.lg,
+      textAlign: 'center',
+    } satisfies TextStyle,
+    secondaryButton: base.secondaryButton,
+    secondaryButtonText: base.secondaryButtonText,
     blockHeader: {
+      color: theme.text,
       fontSize: 32,
       fontWeight: 'bold',
       width: '100%',
       textAlign: 'left',
-      paddingHorizontal: 20,
-      paddingTop: 16,
-      color: theme.text,
+      paddingHorizontal: SPACING.xl,
+      paddingTop: SPACING.lg,
+      paddingBottom: SPACING.sm,
     } satisfies TextStyle,
   });
 };
 
 const createCreateListStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
-  const base = createBaseStyles(colorScheme);
+  const base = createBaseStyles(colorScheme, insets);
 
   return StyleSheet.create({
+    safeArea: base.safeArea,
     container: base.container,
-    header: base.header,
+    header: base.centeredHeader,
     text: base.text,
     input: base.input,
     button: base.button,
     buttonText: base.buttonText,
     form: {
       ...base.card,
-      width: '90%',
-      padding: 20,
+      width: '100%',
+      maxWidth: 460,
+      padding: SPACING.xl,
+      gap: SPACING.lg,
     } satisfies ViewStyle,
   });
 };
 
 const createListDetailStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
-  const base = createBaseStyles(colorScheme);
+  const base = createBaseStyles(colorScheme, insets);
 
   return StyleSheet.create({
+    safeArea: base.safeArea,
     container: base.container,
-    header: base.header,
+    header: base.centeredHeader,
     text: base.text,
   });
 };
 
-const createModalStyles = (colorScheme: ColorSchemeName) => {
-  const base = createBaseStyles(colorScheme);
+const createModalStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
+  const base = createBaseStyles(colorScheme, insets);
   const theme = getTheme(colorScheme);
 
   return StyleSheet.create({
@@ -337,24 +458,28 @@ const createModalStyles = (colorScheme: ColorSchemeName) => {
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: 'rgba(0, 0, 0, 0.72)',
+      paddingHorizontal: SPACING.xl,
+      paddingTop: Math.max(insets.top, SPACING.xl),
+      paddingBottom: withSafeBottom(insets),
     } satisfies ViewStyle,
     modalContent: {
       ...base.card,
-      width: '80%',
-      padding: 20,
+      width: '100%',
+      maxWidth: 420,
+      padding: SPACING.xl,
       alignItems: 'center',
+      gap: SPACING.lg,
     } satisfies ViewStyle,
     modalTitle: {
+      color: theme.text,
       fontSize: 24,
       fontWeight: 'bold',
-      marginBottom: 20,
-      color: theme.text,
+      textAlign: 'center',
     } satisfies TextStyle,
     previewImage: {
       width: 100,
       height: 100,
-      borderRadius: 12,
-      marginBottom: 20,
+      borderRadius: RADIUS.md,
     } satisfies ImageStyle,
     placeholderShape: {
       width: 100,
@@ -362,7 +487,7 @@ const createModalStyles = (colorScheme: ColorSchemeName) => {
       backgroundColor: theme.elevatedSurface,
       borderColor: theme.border,
       borderWidth: 1,
-      borderRadius: 12,
+      borderRadius: RADIUS.md,
       justifyContent: 'center',
       alignItems: 'center',
     } satisfies ViewStyle,
@@ -373,29 +498,44 @@ const createModalStyles = (colorScheme: ColorSchemeName) => {
     cancelText: {
       color: theme.mutedText,
       fontSize: 16,
-      marginTop: 20,
       textAlign: 'center',
     } satisfies TextStyle,
     button: base.button,
     buttonText: base.buttonText,
+    secondaryButton: base.secondaryButton,
+    secondaryButtonText: base.secondaryButtonText,
     text: base.text,
     input: base.input,
+    field: base.field,
     container: base.container,
     title: {
+      color: theme.text,
       fontSize: 24,
       fontWeight: 'bold',
-      marginBottom: 20,
-      color: theme.text,
+      marginBottom: SPACING.xl,
+      textAlign: 'center',
     } satisfies TextStyle,
   });
 };
 
-export const useHomeStyles = (insets : EdgeInsets) => createHomeStyles(useColorScheme(), insets);
-export const useLoginStyles = (insets : EdgeInsets) => createLoginStyles(useColorScheme(), insets);
-export const useProfileStyles = (insets : EdgeInsets) => createProfileStyles(useColorScheme(), insets);
-export const useListStyles = (insets : EdgeInsets) => createListStyles(useColorScheme(), insets);
-export const useCreateListStyles = (insets : EdgeInsets) => createCreateListStyles(useColorScheme(), insets);
-export const useListDetailStyles = (insets : EdgeInsets) => createListDetailStyles(useColorScheme(), insets);
-export const useModalStyles = () => createModalStyles(useColorScheme());
+const useThemedStyles = <T extends StyleSheet.NamedStyles<T>>(
+  createStyles: (colorScheme: ColorSchemeName, insets: EdgeInsets) => T,
+) => {
+  const colorScheme = useColorScheme();
+  const insets = useSafeAreaInsets();
+
+  return useMemo(
+    () => createStyles(colorScheme, insets),
+    [colorScheme, insets.bottom, insets.left, insets.right, insets.top, createStyles],
+  );
+};
+
+export const useHomeStyles = () => useThemedStyles(createHomeStyles);
+export const useLoginStyles = () => useThemedStyles(createLoginStyles);
+export const useProfileStyles = () => useThemedStyles(createProfileStyles);
+export const useListStyles = () => useThemedStyles(createListStyles);
+export const useCreateListStyles = () => useThemedStyles(createCreateListStyles);
+export const useListDetailStyles = () => useThemedStyles(createListDetailStyles);
+export const useModalStyles = () => useThemedStyles(createModalStyles);
 
 export type { AppTheme, BaseStyles };

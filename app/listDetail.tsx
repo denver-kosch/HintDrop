@@ -1,4 +1,5 @@
 import { View, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useListDetailStyles } from '@/styles';
 
 
@@ -6,9 +7,11 @@ const ListDetail = () => {
     const styles = useListDetailStyles();
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.header}>List Detail</Text>
-        </View>
+        <SafeAreaView style={styles.safeArea} edges={['top']}>
+            <View style={styles.container}>
+                <Text style={styles.header}>List Detail</Text>
+            </View>
+        </SafeAreaView>
     )
 };
 

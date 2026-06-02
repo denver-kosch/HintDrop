@@ -2,6 +2,7 @@ import { useListStyles } from '@/styles';
 import { useFocusEffect, useNavigation, NavigationProp } from '@react-navigation/native';
 import { Suspense, useCallback, useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import apiCall from '@/services/apiCall';
 import { ListType, RootStackParamList, AuthState } from '@/types';
 import { useSelector } from 'react-redux';
@@ -47,11 +48,12 @@ const List = () => {
 	const sharedListPreviews = useMemo(() =>lists.shared.map(list => <ListPreview key={list.id+"s"} list={list} shared={true} />), [lists.shared]);
 
 	return (
+	<SafeAreaView style={styles.safeArea} edges={['top']}>
 	<View style={styles.container}>
 		<View style={styles.topBar}>
 			<Text style={[styles.header, {width: '50%'}]}>Lists</Text>
-			<TouchableOpacity onPress={() => navigation.navigate('CreateList')}>
-				<Text style={[styles.button]}> + </Text>
+			<TouchableOpacity style={styles.plusButton} onPress={() => navigation.navigate('CreateList')}>
+				<Text style={styles.plusButtonText}>+</Text>
 			</TouchableOpacity>
 		</View>
 		<View style={styles.listBlock}>
@@ -59,7 +61,7 @@ const List = () => {
 			<Suspense fallback={<ActivityIndicator size="large" color="#b8a96e" />}>
 				{gettingLists ? <LoadingIcon/> :
 				lists.owned.length > 0 ? <ScrollView>{ownedListPreviews}</ScrollView> :
-				<Text style={[styles.text, {padding: 5}]}>You don't have any lists yet.</Text>}
+				<Text style={styles.emptyState}>You don't have any lists yet.</Text>}
 			</Suspense>
 		</View>
 		<PageBreak />
@@ -68,10 +70,11 @@ const List = () => {
 			<Suspense fallback={<ActivityIndicator size="large" color="#b8a96e" />}>
 				{gettingLists ? <LoadingIcon/> :
 				lists.shared.length > 0 ? <ScrollView>{sharedListPreviews}</ScrollView> :
-				<Text style={[styles.text, {padding: 5, justifyContent: 'center'}]}>You haven't been shared any lists yet.</Text>}
+				<Text style={styles.emptyState}>You haven't been shared any lists yet.</Text>}
 			</Suspense>
 		</View>
 	</View>
+	</SafeAreaView>
 	)
 };
 
