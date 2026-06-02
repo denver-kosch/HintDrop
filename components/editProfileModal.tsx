@@ -39,18 +39,20 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ visible, onClose, t
             animationType="slide"
             onRequestClose={onClose}
         >
-            <View style={styles.container}>
-                <Text style={styles.title}>Edit Profile</Text>
+            <View style={styles.modalBackdrop}>
+                <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Edit Profile</Text>
                 <TextInput placeholder="First Name" value={first_name} onChangeText={setFirst_name} style={styles.input} />
                 <TextInput placeholder="Last Name" value={last_name} onChangeText={setLast_name} style={styles.input} />
                 <TextInput placeholder="Phone Number" value={phone_num} onChangeText={setPhone_num} style={styles.input} />
                 <TextInput placeholder="Username" value={username} onChangeText={setUsername} style={styles.input} />
                 <TouchableOpacity onPress={handleSave} style={styles.button}>
-                    <Text style={styles.text} >Save</Text>
+                    <Text style={styles.buttonText}>Save</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={onClose} style={styles.button}>
-                    <Text style={styles.text} >Cancel</Text>
+                <TouchableOpacity onPress={onClose} style={styles.secondaryButton}>
+                    <Text style={styles.secondaryButtonText}>Cancel</Text>
                 </TouchableOpacity>
+                </View>
             </View>
         </Modal>
     );

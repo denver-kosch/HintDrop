@@ -1,4 +1,5 @@
-import { Text, View, Image, TouchableOpacity, Animated, Easing } from 'react-native';
+import { Text, View, Image, TouchableOpacity, Animated, Easing, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { RootStackParamList, } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
@@ -67,17 +68,20 @@ const ProfilePage = () => {
     };
 
     if (loading) return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <View style={styles.loadingContainer}>
           <Animated.View style={{ transform: [{ rotate: spin }], marginBottom: 20 }}>
             <Image source={LoadingIcon} style={{ width: 60, height: 60 }} />
           </Animated.View>
           <Text style={styles.text}>Loading profile...</Text>
         </View>
+        </SafeAreaView>
       );
     
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
             <Text style={styles.header}>Profile</Text>
 
             <Image
@@ -87,36 +91,37 @@ const ProfilePage = () => {
             />
 
             <TouchableOpacity style={styles.button} onPress={() => setPfpModalVisible(true)}>
-                <Text style={styles.text}>Change Photo</Text>
+                <Text style={styles.buttonText}>Change Photo</Text>
             </TouchableOpacity>
 
             <PFPModal visible={pfpMdalVisible} setVisible={setPfpModalVisible} fetchProfile={fetchProfile} token={token} />
 
-            <Text style={[styles.text, {fontWeight: "bold", fontSize: 20, paddingBottom: 20}]}>
+            <Text style={styles.profileName}>
                 {profile?.first_name} {profile?.lastName} <Text style={{ fontStyle: 'italic' }}>(@{profile?.username})</Text>
             </Text>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'space-around', width: '100%', paddingBottom: 20 }}>
-                <View style={{ alignItems: 'center' }}>
-                    <Text style={[styles.text, { fontWeight: 'bold', fontSize: 18 }]}>{ownedListsCount}</Text>
+            <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                    <Text style={styles.statNumber}>{ownedListsCount}</Text>
                     <Text style={styles.text}>Owned Lists</Text>
                 </View>
-                <View style={{ alignItems: 'center' }}>
-                    <Text style={[styles.text, { fontWeight: 'bold', fontSize: 18 }]}>{sharedListsCount}</Text>
+                <View style={styles.statItem}>
+                    <Text style={styles.statNumber}>{sharedListsCount}</Text>
                     <Text style={styles.text}>Shared Lists</Text>
                 </View>
             </View>
 
             <TouchableOpacity style={styles.button} onPress={() => setEditModalVisible(true)}>
-                <Text style={styles.text}>Edit Profile</Text>
+                <Text style={styles.buttonText}>Edit Profile</Text>
             </TouchableOpacity>
 
             <EditProfileModal visible={editModalVisible} onClose={() => setEditModalVisible(false)} token={token} profile={profile} fetchProfile={fetchProfile} />
 
-            <TouchableOpacity onPress={logout}>
-                <Text style={styles.text}>Logout</Text>
+            <TouchableOpacity style={styles.secondaryButton} onPress={logout}>
+                <Text style={styles.secondaryButtonText}>Logout</Text>
             </TouchableOpacity>
-        </View>
+        </ScrollView>
+        </SafeAreaView>
     );
 };
 

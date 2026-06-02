@@ -1,10 +1,13 @@
 import { useState, useCallback } from 'react';
 import apiCall from '@/services/apiCall';
-import { View, Text, TextInput, Button, } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { RootStackParamList, AuthState } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLoginStyles } from '@/styles';
+
+const noopSubmitEvent = { preventDefault: () => undefined };
 
 const LoginPage = () => {
     const dispatch = useDispatch();
@@ -43,8 +46,8 @@ const LoginPage = () => {
         };
 
         return (
-            <View style={{ padding: 20 }}>
-                <View>
+            <View style={styles.form}>
+                <View style={styles.field}>
                     <Text style={styles.text}>Email:</Text>
                     <TextInput
                         style={styles.input}
@@ -54,7 +57,7 @@ const LoginPage = () => {
                         autoCapitalize="none"
                     />
                 </View>
-                <View>
+                <View style={styles.field}>
                     <Text style={styles.text}>Password:</Text>
                     <TextInput
                         style={styles.input}
@@ -63,7 +66,9 @@ const LoginPage = () => {
                         onChangeText={text => setPassword(text)}
                     />
                 </View>
-                <Button title="Login" onPress={handleSubmit} />
+                <TouchableOpacity style={styles.button} onPress={() => handleSubmit(noopSubmitEvent)}>
+                    <Text style={styles.buttonText}>Login</Text>
+                </TouchableOpacity>
             </View>
         );
     };
@@ -90,8 +95,8 @@ const LoginPage = () => {
         };
 
         return (
-            <View style={{ padding: 20 }}>
-                <View>
+            <View style={styles.form}>
+                <View style={styles.field}>
                     <Text style={styles.text}>Email:</Text>
                     <TextInput
                         style={styles.input}
@@ -101,7 +106,7 @@ const LoginPage = () => {
                         autoCapitalize="none"
                     />
                 </View>
-                <View>
+                <View style={styles.field}>
                     <Text style={styles.text}>Username:</Text>
                     <TextInput
                         style={styles.input}
@@ -110,7 +115,7 @@ const LoginPage = () => {
                         autoCapitalize="none"
                     />
                 </View>
-                <View>
+                <View style={styles.field}>
                     <Text style={styles.text}>Password:</Text>
                     <TextInput
                         style={styles.input}
@@ -119,19 +124,25 @@ const LoginPage = () => {
                         onChangeText={text => setPassword(text)}
                     />
                 </View>
-                {error && <Text style={{ color: 'red', marginBottom: 20 }}>{error}</Text>}
-                <Button title="Register" onPress={handleSubmit} />
+                {error ? <Text style={styles.errorText}>{error}</Text> : null}
+                <TouchableOpacity style={styles.button} onPress={() => handleSubmit(noopSubmitEvent)}>
+                    <Text style={styles.buttonText}>Register</Text>
+                </TouchableOpacity>
             </View>
         );
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.header}>{isLogin ? 'Login' : 'Register'}</Text>
-            {isLogin ? <LoginContents /> : <RegisterContents />}
-            {error && <Text style={{ color: 'red', marginBottom: 20 }}>{error}</Text>}
-            <Button title={isLogin ? 'Switch to Register' : 'Switch to Login'} onPress={switchPage} />
-        </View>
+        <SafeAreaView style={styles.safeArea} edges={['top']}>
+            <View style={styles.container}>
+                <Text style={styles.header}>{isLogin ? 'Login' : 'Register'}</Text>
+                {isLogin ? <LoginContents /> : <RegisterContents />}
+                {error ? <Text style={styles.errorText}>{error}</Text> : null}
+                <TouchableOpacity style={styles.secondaryButton} onPress={switchPage}>
+                    <Text style={styles.secondaryButtonText}>{isLogin ? 'Switch to Register' : 'Switch to Login'}</Text>
+                </TouchableOpacity>
+            </View>
+        </SafeAreaView>
     );
 };
 

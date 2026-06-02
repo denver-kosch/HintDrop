@@ -1,13 +1,12 @@
-import { ScrollView, Text, View, } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useHomeStyles } from "@/styles"
 import { store } from "@/store";
 import apiCall from "@/services/apiCall";
 
 export default function Index() {
-  const insets = useSafeAreaInsets();
   const token = store.getState().auth.token;
   const styles = useHomeStyles();
   const [name, setName] = useState<String>("");
@@ -39,12 +38,10 @@ export default function Index() {
   }
 
   return (
-    // <SafeAreaProvider>
-    //   <SafeAreaView style={styles.container}>
-        <ScrollView style={{ width: '100%' }}>
-          <IndexContents/>
-        </ScrollView>
-    //   </SafeAreaView>
-    // </SafeAreaProvider>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        <IndexContents/>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
