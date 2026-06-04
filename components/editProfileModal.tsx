@@ -20,7 +20,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ visible, onClose, t
             alert("Please choose a valid and available username.");
             return;
         }
-        const response = await apiCall('updateUser', { first_name, last_name, phone_num, username }, { "Authorization": `Bearer ${token}` });
+        const response = await apiCall('users/me', { first_name, last_name, phone_num, username }, { "Authorization": `Bearer ${token}` }, 'PATCH');
         if (!response?.success) console.error("Failed to update profile:", response?.message);
         fetchProfile();
         onClose();
@@ -49,7 +49,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ visible, onClose, t
 
         const timeout = setTimeout(async () => {
             setUsernameStatus("checking");
-            const res = await apiCall(`checkUsername`, { username: cleanUsername });
+            const res = await apiCall('users/check-username', { username: cleanUsername }, {}, 'GET');
             setUsernameStatus(res.available ? "available" : "taken");
         }, 400);
 

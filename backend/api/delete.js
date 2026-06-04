@@ -1,9 +1,9 @@
 import { extractToken } from "./authentication.js";
-import { ApiError, handleError } from "../functions.js";
-import { User, List, Gift } from "../models.js";
+import { ApiError } from "../functions.js";
+import { User, List, Gift, UserList } from "../models.js";
 
 export const deleteList = async (req) => {
-	const { listId } = req.body;
+	const { listId } = req.params;
 	const id = extractToken(req);
 
 	try {
@@ -13,20 +13,22 @@ export const deleteList = async (req) => {
 		const user = await User.findByPk(id);
 		if (!user) throw new ApiError(404, "User not found with provided id");
 
+		const membership = await UserList.findOne({ where: { user_id: id, list_id: listId, role: "owner", archived_at: null } });
+		if (!membership) throw new ApiError(403, "Forbidden: You do not own this list");
+
 		const list = await List.findByPk(listId);
 		if (!list) throw new ApiError(404, "List not found with provided id");
-		if (list.owner !== id) throw new ApiError(403, "Forbidden: You do not own this list");
 
 		await list.destroy();
 
-		return {status: 200, message: "List deleted successfully"};
+		return { status: 200, content: { message: "List deleted successfully" } };
 	} catch (error) {
-		throw new ApiError(500, error.message);
+		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}
 };
 
 export const deleteGift = async (req) => {
-	const { giftId } = req.body;
+	const { giftId } = req.params;
 	const id = extractToken(req);
 
 	try {
@@ -39,11 +41,14 @@ export const deleteGift = async (req) => {
 		const gift = await Gift.findByPk(giftId);
 		if (!gift) throw new ApiError(404, "Gift not found with provided id");
 
+		const membership = await UserList.findOne({ where: { user_id: id, list_id: gift.list_id, archived_at: null } });
+		if (!membership || membership.role === "viewer") throw new ApiError(403, "Forbidden");
+
 		await gift.destroy();
 
-		return {status: 200, message: "Gift deleted successfully"};
+		return { status: 200, content: { message: "Gift deleted successfully" } };
 	} catch (error) {
-		throw new ApiError(500, error.message);
+		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}
 };
 
@@ -58,8 +63,8 @@ export const deleteUser = async (req) => {
 
 		await user.destroy();
 
-		return {status: 200, message: "User deleted successfully"};
+		return { status: 200, content: { message: "User deleted successfully" } };
 	} catch (error) {
-		throw new ApiError(500, error.message);
+		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}
 };

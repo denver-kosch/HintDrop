@@ -24,7 +24,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose, token }
             Alert.alert("Password Change Failed", "New passwords do not match.");
             return;
         }
-        const response = await apiCall('updateUserPassword', { currentPassword: currentPassword.trim(), newPassword: newPassword.trim() }, { "Authorization": `Bearer ${token}` });
+        const response = await apiCall('users/me/password', { currentPassword: currentPassword.trim(), newPassword: newPassword.trim() }, { "Authorization": `Bearer ${token}` }, 'PATCH');
         if (response?.success) {
             Alert.alert("Password Changed", "Your password was changed successfully.");
             wipeModal();

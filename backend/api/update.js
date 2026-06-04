@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
-import { User, List, Gift } from "../models.js";
+import { User, List, Gift, UserList } from "../models.js";
 import { extractToken } from "./authentication.js";
-import { ApiError, handleError } from "../functions.js";
+import { ApiError } from "../functions.js";
 import sharp from "sharp";
 import { join } from "path";
 
@@ -48,14 +48,15 @@ export const updateUser = async (req) => {
 
 		await user.save();
 
-		return {status: 200, user: { username: user.username, email: user.email, first_name: user.first_name, last_name: user.last_name, phone_num: user.phone_num } };
+		return {status: 200, content: { user: { username: user.username, email: user.email, first_name: user.first_name, last_name: user.last_name, phone_num: user.phone_num } } };
 	} catch (error) {
-		handleError(error);
+		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}
 };
 
 export const updateList = async (req) => {
-	const { listId, name, description, isShareable } = req.body;
+	const { name, description, isShareable } = req.body;
+	const { listId } = req.params;
 	const id = extractToken(req);
 
 	try {
@@ -78,12 +79,13 @@ export const updateList = async (req) => {
 
 		return {status: 200};
 	} catch (error) {
-		handleError(error);
+		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}
 };
 
 export const updateGift = async (req) => {
-	const { giftId, name, description, url, price } = req.body;
+	const { name, description, url, price } = req.body;
+	const { giftId } = req.params;
 	const id = extractToken(req);
 
 	try {
@@ -108,7 +110,7 @@ export const updateGift = async (req) => {
 
 		return {status: 200};
 	} catch (error) {
-		handleError(error);
+		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}
 };
 
@@ -142,7 +144,7 @@ export const updateProfilePic = async (req) => {
 
 		return { status: 200 };
 	} catch (error) {
-		handleError(error);
+		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}
 };
 
@@ -163,6 +165,6 @@ export const updateUserPassword = async (req) => {
 
 		return { status: 200 };
 	} catch (error) {
-		handleError(error);
+		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}
 };

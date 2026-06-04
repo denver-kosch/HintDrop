@@ -32,7 +32,7 @@ export const login = async (req) => {
 
 export const auth = async (req) => {
 	try {
-		let token = req.headers.authorization.split(" ")[1];
+		let token = req.headers.authorization?.split(" ")[1];
 		if (!token) throw new ApiError(401, 'No token provided');
 		jwt.verify(token, SECRET); // Throws an error if the token is invalid
 		return {status:200};
@@ -50,7 +50,7 @@ export const verifyUser = async (req) => {
 
 export const extractToken = req => {
 	try {
-		const token = req.headers.authorization.split(" ")[1];
+		const token = req.headers.authorization?.split(" ")[1];
 		const content = jwt.verify(token, SECRET);
 		return (content && content.id);
 	} catch {

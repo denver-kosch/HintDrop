@@ -24,10 +24,10 @@ const PFPModal: FC<PFPModalProps> = ({ visible, setVisible, fetchProfile, token 
             name: 'profile.png',
             type: 'image/png'
         } as any);
-        const response = await apiCall('updateProfilePic', formData, {
+        const response = await apiCall('users/me/profile-picture', formData, {
             "Content-Type": 'multipart/form-data',
             "Authorization": `Bearer ${token}`
-        });
+        }, 'PATCH');
         if (response?.success) fetchProfile();
         else console.error("Failed to update profile picture:", response?.message);
     };

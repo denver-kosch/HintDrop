@@ -8,8 +8,8 @@ import { fileURLToPath } from 'url';
 import { asyncHandler } from './functions.js';
 import { register, login, auth } from './api/authentication.js';
 import { SERVER_HOST, SERVER_PORT } from './config.js';
-import { createList, addToList } from './api/create.js';
-import { getLists, getList, getProfileInfo, getUserDetails, checkUsername } from './api/read.js';
+import { createList, addToList, shareList } from './api/create.js';
+import { getLists, getList, getProfileInfo, checkUsername } from './api/read.js';
 import { updateList, updateGift, updateUser, updateProfilePic, updateUserPassword } from './api/update.js';
 import { deleteList, deleteGift, deleteUser } from './api/delete.js';
 
@@ -37,42 +37,41 @@ app.use((req, res, next) => {
 })();
 
 // Authentication routes
-app.post('/register', asyncHandler(register));
+app.post('/auth/register', asyncHandler(register));
 
-app.post('/login', asyncHandler(login));
+app.post('/auth/login', asyncHandler(login));
 
-app.post('/auth', asyncHandler(auth));
+app.get('/auth/me', asyncHandler(auth));
 
-// Create routes
-app.post('/createList', asyncHandler(createList));
+// User routes
+app.get('/users/me', asyncHandler(getProfileInfo));
 
-app.post('/addToList', asyncHandler(addToList));
+app.patch('/users/me', asyncHandler(updateUser));
 
-// Read routes
-app.post('/getLists', asyncHandler(getLists));
+app.delete('/users/me', asyncHandler(deleteUser));
 
-app.post('/getList', asyncHandler(getList));
+app.patch('/users/me/password', asyncHandler(updateUserPassword));
 
-app.post('/getProfileInfo', asyncHandler(getProfileInfo));
+app.patch('/users/me/profile-picture', upload.single('image'), asyncHandler(updateProfilePic));
 
-app.post('/getUser', asyncHandler(getUserDetails));
+app.get('/users/check-username', asyncHandler(checkUsername));
 
-app.post('/checkUsername', asyncHandler(checkUsername));
+// List routes
+app.get('/lists', asyncHandler(getLists));
 
-// Update routes
-app.post('/updateList', asyncHandler(updateList));
+app.post('/lists', asyncHandler(createList));
 
-app.post('/updateGift', asyncHandler(updateGift));
+app.get('/lists/:listId', asyncHandler(getList));
 
-app.post('/updateUser', asyncHandler(updateUser));
+app.patch('/lists/:listId', asyncHandler(updateList));
 
-app.post('/updateProfilePic', upload.single('image'), asyncHandler(updateProfilePic));
+app.delete('/lists/:listId', asyncHandler(deleteList));
 
-app.post('/updateUserPassword', asyncHandler(updateUserPassword));
+app.post('/lists/:listId/gifts', asyncHandler(addToList));
 
-// Delete routes
-app.post('/deleteList', asyncHandler(deleteList));
+app.post('/lists/:listId/shares', asyncHandler(shareList));
 
-app.post('/deleteGift', asyncHandler(deleteGift));
+// Gift routes
+app.patch('/gifts/:giftId', asyncHandler(updateGift));
 
-app.post('/deleteUser', asyncHandler(deleteUser));
+app.delete('/gifts/:giftId', asyncHandler(deleteGift));
