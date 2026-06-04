@@ -15,7 +15,7 @@ export default function Index() {
 
   useFocusEffect(
     useCallback(() => {
-      const fetchUser = async () => apiCall('getUser', {fields: ['first_name']}, { Authorization: `Bearer ${token}` }).then(user => { if (user.success) setName(user.userData.first_name)});
+      const fetchUser = async () => apiCall('users/me', { fields: ['first_name'] }, { Authorization: `Bearer ${token}` }, 'GET').then(user => { if (user.success) setName(user.userData.first_name)});
       if (token) fetchUser();
       else setName("");
     }, [token])

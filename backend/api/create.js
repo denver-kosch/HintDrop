@@ -1,4 +1,4 @@
-import { ApiError, handleError } from "../functions.js";
+import { ApiError } from "../functions.js";
 import {User, List, UserList, Gift } from "../models.js";
 import { extractToken } from "./authentication.js";
 import { sequelize } from "../models.js";
@@ -31,7 +31,8 @@ export const createList = async (req) => {
 };
 
 export const addToList = async (req) => {
-	const { listId, name, description, url, price } = req.body;
+	const { name, description, url, price } = req.body;
+	const { listId } = req.params;
 	const id = extractToken(req);
 
 	try {
@@ -62,7 +63,8 @@ export const addToList = async (req) => {
 };
 
 export const shareList = async (req) => {
-  const { listId, username, role = "viewer" } = req.body;
+  const { username, role = "viewer" } = req.body;
+  const { listId } = req.params;
   const id = extractToken(req);
 
   try {
@@ -100,6 +102,6 @@ export const shareList = async (req) => {
 
     return { status: 201, content: { shared: { username: targetUser.username } }};
   } catch (error) {
-    handleError(error);
+    throw error instanceof ApiError ? error : new ApiError(500, error.message);
   }
 };

@@ -22,7 +22,7 @@ const List = () => {
 		useCallback(() => {
 			setGettingLists(true);
 			const fetchLists = async () => {
-				const response = await apiCall('getLists', {}, {"Authorization": `Bearer ${token}`});
+				const response = await apiCall('lists', {}, {"Authorization": `Bearer ${token}`}, 'GET');
 				if (response.success) setLists(response.lists);
 			};
 			if (token) fetchLists();

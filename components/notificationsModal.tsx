@@ -12,14 +12,14 @@ const NotificationsModal: React.FC<NotificationsModalProps> = ({ visible, onClos
 
 	useEffect(() => {
 		const fetchSettings = async () => {
-			const response = await apiCall(`getUser`, { fields: ['notifications_enabled'] }, { "Authorization": `Bearer ${token}` });
+			const response = await apiCall('users/me', { fields: ['notifications_enabled'] }, { "Authorization": `Bearer ${token}` }, 'GET');
 			if (response?.success) setEnabled(response.userData.notifications_enabled);
 		};
 		fetchSettings();
 	}, [enabled]);
 
 	const changeEnabled = async (value: boolean) => {
-		const response = await apiCall('updateUser', { notifications_enabled: value }, { "Authorization": `Bearer ${token}` });
+		const response = await apiCall('users/me', { notifications_enabled: value }, { "Authorization": `Bearer ${token}` }, 'PATCH');
 		if (!response?.success) Alert.alert('Update Failed', "Failed to update notification settings. Please try again.");
 		else setEnabled(value);
 	};

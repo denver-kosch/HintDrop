@@ -1,6 +1,6 @@
 import { User, List, UserList } from "../models.js";
 import { extractToken } from "./authentication.js";
-import { ApiError, makeBackendUrl, handleError } from "../functions.js";
+import { ApiError, makeBackendUrl } from "../functions.js";
 import { existsSync } from "fs";
 import { Op } from "sequelize";
 
@@ -65,13 +65,12 @@ export const getLists = async (req) => {
 		});
 		return { status: 200, content: { lists } };
 	} catch (error) {
-		console.error(error);
-		handleError(error);
+		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}
 };
 
 export const getList = async (req) => {
-	const { listId } = req.body;
+	const { listId } = req.params;
 	const id = extractToken(req);
 
 	try {
@@ -88,9 +87,9 @@ export const getList = async (req) => {
 
 		const gifts = await membership.list.getGifts({ order: [["created_at", "DESC"]] });
 
-		return { status: 200, list: membership.list, gifts };
+		return { status: 200, content: { list: membership.list, gifts } };
 	} catch (error) {
-		handleError(error);
+		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}
 };
 
@@ -100,7 +99,9 @@ export const getProfileInfo = async (req) => {
 	try {
 		if (!id) throw new ApiError(401, "Unauthorized");
 		//get user info, as well as the number of owned lists and shared lists
-		const user = await User.findByPk(id, { attributes: SAFE_USER_FIELDS });
+		const requestedFields = req.query.fields?.split(",").filter(Boolean);
+		if (requestedFields && requestedFields.some(field => !SAFE_USER_FIELDS.includes(field))) throw new ApiError(400, "Invalid fields requested");
+		const user = await User.findByPk(id, { attributes: requestedFields?.length ? requestedFields : SAFE_USER_FIELDS });
 		if (!user) throw new ApiError(404, "User not found");
 
 		const ownedListsCount = await UserList.count({where: { user_id: id, archived_at: null, role: "owner" } });
@@ -112,13 +113,13 @@ export const getProfileInfo = async (req) => {
 		
 		return { status: 200, content: { userData, ownedListsCount, sharedListsCount } };
 	} catch (error) {
-		handleError(error);
+		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}
 };
 
 export const getUserDetails = async (req) => {
 	const id = extractToken(req);
-	const { fields } = req.body;
+	const fields = req.query.fields?.split(",").filter(Boolean);
 
 	try {
 		if (!id) throw new ApiError(401, "Unauthorized");
@@ -129,20 +130,19 @@ export const getUserDetails = async (req) => {
 
 		return { status: 200, content: { userData: user } };
 	} catch (error) {
-		handleError(error);
+		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}
 };
 
 export const checkUsername = async (req) => {
-	const { username } = req.body;
+	const { username } = req.query;
 
 	try {
-		console.log(username)
 		if (!username) throw new ApiError(400, "No username provided");
 		if (!/^[a-zA-Z0-9_]+$/.test(username)) throw new ApiError(400, "Invalid username format");
 		const user = await User.count({ where: { username } });
 		return { status: 200, content: { available: user == 0} };
 	} catch (error) {
-		handleError(error);
+		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}
 };

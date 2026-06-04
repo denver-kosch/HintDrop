@@ -49,8 +49,9 @@ const ProfilePage = () => {
     const fetchProfile = async () => {
         setLoading(true);
         const response = await apiCall(
-            'getProfileInfo', {},
-            {"Authorization": `Bearer ${token}`}
+            'users/me', {},
+            {"Authorization": `Bearer ${token}`},
+            'GET'
         );
         setLoading(false);
         if (!response?.success) return;

@@ -33,7 +33,7 @@ const LoginPage = () => {
             event.preventDefault();
             setError('');
 
-            const response = await apiCall('login', { email, password });
+            const response = await apiCall('auth/login', { email, password });
 
             if (response?.success) {
                 setEmail('');
@@ -87,7 +87,7 @@ const LoginPage = () => {
                 return;
             }
             
-            const response = await apiCall('register', { email, username, password });
+            const response = await apiCall('auth/register', { email, username, password });
             if (response?.success) {
                 setEmail('');
                 setUsername('');
