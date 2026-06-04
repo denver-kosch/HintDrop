@@ -9,7 +9,6 @@ export type RootStackParamList = {
     EditProfile: undefined;
     Register: undefined;
   };
-  
 
 export type AuthState = {
     auth: {
@@ -35,3 +34,27 @@ export type ListType = {
     lastUpdated?: string;
 };
 
+export interface EditProfileModalProps {
+    visible: boolean;
+    onClose: () => void;
+    token: string;
+    profile?: {
+        first_name: string;
+        last_name: string;
+        phone_num: string;
+        username: string;
+    };
+    fetchProfile: () => void;
+}
+
+export interface NotificationsModalProps {
+    visible: boolean;
+    onClose: () => void;
+    token: string;
+}
+
+export interface PasswordModalProps {
+    visible: boolean;
+    onClose: () => void;
+    token: string;
+}

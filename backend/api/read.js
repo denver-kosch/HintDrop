@@ -18,7 +18,7 @@ const flattenMembership = (membership) => {
 	};
 };
 
-const SAFE_USER_FIELDS = [ "id", "username", "first_name", "last_name", "email", "phone_num", "verified", "admin", "created_at", "updated_at" ];
+const SAFE_USER_FIELDS = [ "id", "username", "first_name", "last_name", "email", "phone_num", "verified", "admin", "created_at", "updated_at", "notifications_enabled" ];
 
 export const getLists = async (req) => {
 	try {
@@ -63,7 +63,6 @@ export const getLists = async (req) => {
 			if (membership.membership.role === "owner") lists.owned.push(membership);
 			else lists.shared.push(membership);
 		});
-
 		return { status: 200, content: { lists } };
 	} catch (error) {
 		console.error(error);
@@ -129,6 +128,20 @@ export const getUserDetails = async (req) => {
 		if (!user) throw new ApiError(404, "User not found");
 
 		return { status: 200, content: { userData: user } };
+	} catch (error) {
+		handleError(error);
+	}
+};
+
+export const checkUsername = async (req) => {
+	const { username } = req.body;
+
+	try {
+		console.log(username)
+		if (!username) throw new ApiError(400, "No username provided");
+		if (!/^[a-zA-Z0-9_]+$/.test(username)) throw new ApiError(400, "Invalid username format");
+		const user = await User.count({ where: { username } });
+		return { status: 200, content: { available: user == 0} };
 	} catch (error) {
 		handleError(error);
 	}

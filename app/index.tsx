@@ -3,29 +3,28 @@ import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useHomeStyles } from "@/styles"
-import { store } from "@/store";
 import apiCall from "@/services/apiCall";
+import { useSelector } from "react-redux";
+import { AuthState } from "@/types";
+
 
 export default function Index() {
-  const token = store.getState().auth.token;
+  const token = useSelector((state: AuthState) => state.auth.token);
   const styles = useHomeStyles();
   const [name, setName] = useState<String>("");
-
-
 
   useFocusEffect(
     useCallback(() => {
       const fetchUser = async () => apiCall('getUser', {fields: ['first_name']}, { Authorization: `Bearer ${token}` }).then(user => { if (user.success) setName(user.userData.first_name)});
       if (token) fetchUser();
+      else setName("");
     }, [token])
   );
 
 
-  const notLoggedInScreen = () => {
+  const NotLoggedInScreen = () => {
     // In Progress
   };
-
-
 
 
   const IndexContents = () => {

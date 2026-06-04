@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.dkosch1.HintDrop"
+      "bundleIdentifier": "com.dkosch.hintdrop"
     },
     "android": {
       "adaptiveIcon": {

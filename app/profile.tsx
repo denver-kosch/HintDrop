@@ -9,6 +9,9 @@ import apiCall from '@/services/apiCall';
 import PFPModal from '../components/editPfpModal';
 import EditProfileModal from '../components/editProfileModal';
 import LoadingIcon from '../assets/images/loadingIcon.png';
+import PageBreak from '@/components/pagebreak';
+import NotificationsModal from '@/components/notificationsModal';
+import PasswordModal from '@/components/editPasswordModal';
 
 const ProfilePage = () => {
     const dispatch = useDispatch();
@@ -21,6 +24,8 @@ const ProfilePage = () => {
     const [loading, setLoading] = useState(true);
     const [ownedListsCount, setOwnedListsCount] = useState(0);
     const [sharedListsCount, setSharedListsCount] = useState(0);
+    const [notificationsModalVisible, setNotificationsModalVisible] = useState(false);
+    const [passwordModalVisible, setPasswordModalVisible] = useState(false);
     
 
     const spinValue = useState(new Animated.Value(0))[0];
@@ -56,8 +61,13 @@ const ProfilePage = () => {
 
     useFocusEffect(
         useCallback(() => {
-            if (!token) navigation.navigate('Home');
-            fetchProfile();
+            if (!token) {
+                setProfile({});
+                setOwnedListsCount(0);
+                setSharedListsCount(0);
+                navigation.navigate('Home');
+            }
+            else fetchProfile();
         }, [token, navigation])
     );
 
@@ -76,7 +86,20 @@ const ProfilePage = () => {
           <Text style={styles.text}>Loading profile...</Text>
         </View>
         </SafeAreaView>
-      );
+    );
+
+    const settingsRow = (label: string, onPress: () => void) => (
+        <TouchableOpacity style={styles.settingsRow} onPress={onPress}>
+            <Text style={styles.settingsText}>{label}</Text>
+        </TouchableOpacity>
+    );
+
+    const settings = [
+        { label: 'Edit Profile', onPress: () => setEditModalVisible(true) },
+        { label: 'Notification Settings', onPress: () => setNotificationsModalVisible(true) },
+        { label: 'Change Password', onPress: () => setPasswordModalVisible(true) },
+        { label: 'Logout', onPress: logout },
+    ];
     
 
     return (
@@ -97,29 +120,36 @@ const ProfilePage = () => {
             <PFPModal visible={pfpMdalVisible} setVisible={setPfpModalVisible} fetchProfile={fetchProfile} token={token} />
 
             <Text style={styles.profileName}>
-                {profile?.first_name} {profile?.lastName} <Text style={{ fontStyle: 'italic' }}>(@{profile?.username})</Text>
+                {profile?.first_name} {profile?.last_name} <Text style={{ fontStyle: 'italic' }}>(@{profile?.username})</Text>
             </Text>
 
             <View style={styles.statsRow}>
-                <View style={styles.statItem}>
+                <TouchableOpacity onPress={() => navigation.navigate("List")} style={styles.statItem}>
                     <Text style={styles.statNumber}>{ownedListsCount}</Text>
                     <Text style={styles.text}>Owned Lists</Text>
-                </View>
-                <View style={styles.statItem}>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate("List")} style={styles.statItem}>
                     <Text style={styles.statNumber}>{sharedListsCount}</Text>
                     <Text style={styles.text}>Shared Lists</Text>
-                </View>
+                </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.button} onPress={() => setEditModalVisible(true)}>
-                <Text style={styles.buttonText}>Edit Profile</Text>
-            </TouchableOpacity>
+            <PageBreak />
 
             <EditProfileModal visible={editModalVisible} onClose={() => setEditModalVisible(false)} token={token} profile={profile} fetchProfile={fetchProfile} />
 
-            <TouchableOpacity style={styles.secondaryButton} onPress={logout}>
-                <Text style={styles.secondaryButtonText}>Logout</Text>
-            </TouchableOpacity>
+            <NotificationsModal visible={notificationsModalVisible} onClose={() => setNotificationsModalVisible(false)} token={token} />
+            
+            <PasswordModal visible={passwordModalVisible} onClose={() => setPasswordModalVisible(false)} token={token} />
+            
+            <View style={styles.settingsContainer}>
+                {settings.map((setting, index) => (
+                    <View key={index}>
+                        {settingsRow(setting.label, setting.onPress)}
+                        {index < settings.length - 1 && <View style={styles.divider} />}
+                    </View>
+                ))}
+            </View>
         </ScrollView>
         </SafeAreaView>
     );

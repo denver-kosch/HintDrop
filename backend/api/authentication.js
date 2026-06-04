@@ -7,7 +7,8 @@ import { hash, compare } from 'bcrypt';
 
 export const register = async (req) => {
 	try {
-		let { username, email, password } = req.body;
+		const { username, email, password } = req.body;
+		if (username.trim().length < 5) throw new ApiError(400, 'Username must be at least 5 characters');
 		if (!username || !password || !email) throw new ApiError(400, 'Username, email, and password required');
 		const password_hash = await hash(password, 10);
 		const user = await User.create({ username, email, password_hash });

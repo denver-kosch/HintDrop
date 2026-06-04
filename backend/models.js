@@ -74,6 +74,11 @@ export const User = sequelize.define("User", {
 		allowNull: false,
 		defaultValue: false,
 	},
+	notifications_enabled: {
+		type: DataTypes.BOOLEAN,
+		allowNull: false,
+		defaultValue: true
+	}
 	}, {
 		timestamps: true,
 		underscored: true,

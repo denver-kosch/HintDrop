@@ -1,11 +1,11 @@
-import { hash } from "bcrypt";
+import bcrypt from "bcrypt";
 import { User, List, Gift } from "../models.js";
 import { extractToken } from "./authentication.js";
 import { ApiError, handleError } from "../functions.js";
 import sharp from "sharp";
 import { join } from "path";
 
-const ALLOWED_UPDATED_USER_FIELDS = ["username", "email", "first_name", "last_name", "phone_num"];
+const ALLOWED_UPDATED_USER_FIELDS = ["username", "email", "first_name", "last_name", "phone_num", "notifications_enabled"];
 
 const parseBoolean = (value) => {
 	if ([true, "true", 1, "1"].includes(value)) return true;
@@ -23,20 +23,27 @@ export const updateUser = async (req) => {
 		const invalidKeys = keys.filter(key => !ALLOWED_UPDATED_USER_FIELDS.includes(key));
 		if (invalidKeys.length) throw new ApiError(400, `Invalid fields: ${invalidKeys.join(", ")}`);
 
-		console.log("cleaned keys")
-
 		const user = await User.findByPk(id);
 		if (!user) throw new ApiError(404, "User not found");
 
 		for (const key of keys) {
 			const value = req.body[key];
+
+			if (key === "notifications_enabled") {
+				user.notifications_enabled = parseBoolean(value);
+				continue;
+			}
+
 			if (typeof value !== "string") throw new ApiError(400, `${key} must be a string`);
 			const trimmed = value.trim();
+
 			console.log(`Processed ${key}: "${value}" -> "${trimmed}"`);
+
 			if (!trimmed) {
 				if (["username", "email"].includes(key)) throw new ApiError(400, `${key} cannot be empty`);
 				else user[key] = null;
-			} else user[key] = trimmed;
+			} 
+			else user[key] = trimmed;
 		}
 
 		await user.save();
@@ -151,7 +158,7 @@ export const updateUserPassword = async (req) => {
 		const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
 		if (!isMatch) throw new ApiError(403, "Current password is incorrect");
 
-		user.password_hash = await hash(newPassword, 10);
+		user.password_hash = await bcrypt.hash(newPassword, 10);
 		await user.save();
 
 		return { status: 200 };

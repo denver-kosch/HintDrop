@@ -7,7 +7,7 @@ import apiCall from '@/services/apiCall';
 import { ListType, RootStackParamList, AuthState } from '@/types';
 import { useSelector } from 'react-redux';
 import PageBreak from '@/components/pagebreak';
-import LoadingIcon from '../components/loadingIcon';
+import LoadingIcon from '@/components/loadingIcon';
 
 
 
@@ -26,6 +26,7 @@ const List = () => {
 				if (response.success) setLists(response.lists);
 			};
 			if (token) fetchLists();
+			else setLists({ owned: [], shared: [] });
 			setGettingLists(false);
 		}, [token])
 	);
@@ -43,6 +44,19 @@ const List = () => {
 		)
 	};
 
+	const ListBlock = ({title, lists } : { title: string, lists: ListType[] }) => {
+		return (
+			<View style={styles.listBlock}>
+				<Text style={styles.blockHeader}>{title}</Text>
+				<Suspense fallback={<ActivityIndicator size="large" color="#b8a96e" />}>
+					{gettingLists ? <LoadingIcon/> :
+					lists.length > 0 ? <ScrollView>{lists.map(list => <ListPreview key={list.id} list={list} shared={false} />)}</ScrollView> :
+					<Text style={styles.emptyState}>No lists to display.</Text>}
+				</Suspense>
+			</View>
+		)
+	};
+
 	const ownedListPreviews = useMemo(() => lists.owned.map(list => <ListPreview key={list.id+"o"} list={list} shared={false} />), [lists.owned]);
 
 	const sharedListPreviews = useMemo(() =>lists.shared.map(list => <ListPreview key={list.id+"s"} list={list} shared={true} />), [lists.shared]);
@@ -56,23 +70,12 @@ const List = () => {
 				<Text style={styles.plusButtonText}>+</Text>
 			</TouchableOpacity>
 		</View>
-		<View style={styles.listBlock}>
-			<Text style={styles.blockHeader}>Your Lists:</Text>
-			<Suspense fallback={<ActivityIndicator size="large" color="#b8a96e" />}>
-				{gettingLists ? <LoadingIcon/> :
-				lists.owned.length > 0 ? <ScrollView>{ownedListPreviews}</ScrollView> :
-				<Text style={styles.emptyState}>You don't have any lists yet.</Text>}
-			</Suspense>
-		</View>
+
+		<ListBlock title="Your Lists:" lists={lists.owned}/>
+		
 		<PageBreak />
-		<View style={styles.listBlock}>
-			<Text style={styles.blockHeader}>Shared Lists:</Text>
-			<Suspense fallback={<ActivityIndicator size="large" color="#b8a96e" />}>
-				{gettingLists ? <LoadingIcon/> :
-				lists.shared.length > 0 ? <ScrollView>{sharedListPreviews}</ScrollView> :
-				<Text style={styles.emptyState}>You haven't been shared any lists yet.</Text>}
-			</Suspense>
-		</View>
+		
+		<ListBlock title="Shared Lists:" lists={lists.shared}/>
 	</View>
 	</SafeAreaView>
 	)

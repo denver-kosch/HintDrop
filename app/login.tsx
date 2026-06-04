@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import apiCall from '@/services/apiCall';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { RootStackParamList, AuthState } from '@/types';
@@ -81,7 +81,12 @@ const LoginPage = () => {
         const handleSubmit = async (event: { preventDefault: () => void; }) => {
             event.preventDefault();
             setError('');
-
+            
+            if (username.trim().length < 5) {
+                setError('Username must be at least 5 characters');
+                return;
+            }
+            
             const response = await apiCall('register', { email, username, password });
             if (response?.success) {
                 setEmail('');
@@ -134,14 +139,19 @@ const LoginPage = () => {
 
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
-            <View style={styles.container}>
-                <Text style={styles.header}>{isLogin ? 'Login' : 'Register'}</Text>
-                {isLogin ? <LoginContents /> : <RegisterContents />}
-                {error ? <Text style={styles.errorText}>{error}</Text> : null}
-                <TouchableOpacity style={styles.secondaryButton} onPress={switchPage}>
-                    <Text style={styles.secondaryButtonText}>{isLogin ? 'Switch to Register' : 'Switch to Login'}</Text>
-                </TouchableOpacity>
-            </View>
+            <KeyboardAvoidingView
+                style={styles.container}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+            >
+                <View style={styles.container}>
+                    <Text style={styles.header}>{isLogin ? 'Login' : 'Register'}</Text>
+                    {isLogin ? <LoginContents /> : <RegisterContents />}
+                    {error ? <Text style={styles.errorText}>{error}</Text> : null}
+                    <TouchableOpacity style={styles.secondaryButton} onPress={switchPage}>
+                        <Text style={styles.secondaryButtonText}>{isLogin ? 'Switch to Register' : 'Switch to Login'}</Text>
+                    </TouchableOpacity>
+                </View>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 };
