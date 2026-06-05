@@ -1,11 +1,13 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import apiCall from '@/services/apiCall';
-import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { RootStackParamList, AuthState } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLoginStyles } from '@/styles';
+import useUsernameAvailability from '@/hooks/useUsernameAvailablity';
+import UsernameStatusIndicator from '@/components/UsernameStatusIndicator';
 
 const noopSubmitEvent = { preventDefault: () => undefined };
 
@@ -15,15 +17,10 @@ const LoginPage = () => {
     const styles = useLoginStyles();
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const [isLogin, setIsLogin] = useState(true);
-    const [error, setError] = useState('');
 
     useFocusEffect(useCallback(() => {if (token) navigation.navigate('Home');}, [token, navigation]));
 
-    const switchPage = () => {
-        setIsLogin(!isLogin);
-        setError('');
-    };
-
+    const switchPage = () => setIsLogin(!isLogin);
 
     const LoginContents = () => {
         const [email, setEmail] = useState('');
@@ -31,18 +28,17 @@ const LoginPage = () => {
 
         const handleSubmit = async (event: { preventDefault: () => void; }) => {
             event.preventDefault();
-            setError('');
 
-            const response = await apiCall('auth/login', { email, password });
-
-            if (response?.success) {
-                setEmail('');
-                setPassword('');
-                dispatch({ type: 'SET_TOKEN', payload: response.token });
-                navigation.navigate('Home');
-            } else {
-                setError(response?.error || 'An error occurred');
-            }
+            await apiCall<{success: boolean, token: string}>('auth/login', { body: { email, password }, method: 'POST', auth: false })
+                .then(response => {
+                    setEmail('');
+                    setPassword('');
+                    dispatch({ type: 'SET_TOKEN', payload: response.token });
+                    navigation.navigate('Home');
+            }).catch(err => {
+                console.error("Login error:", err);
+                Alert.alert("Login Error", err.message || 'An error occurred during login');
+            });
         };
 
         return (
@@ -77,26 +73,28 @@ const LoginPage = () => {
         const [email, setEmail] = useState('');
         const [username, setUsername] = useState('');
         const [password, setPassword] = useState('');
+        const {usernameStatus, isUsernameValid} = useUsernameAvailability({username});
 
         const handleSubmit = async (event: { preventDefault: () => void; }) => {
             event.preventDefault();
-            setError('');
             
-            if (username.trim().length < 5) {
-                setError('Username must be at least 5 characters');
+            if (!isUsernameValid) {
+                Alert.alert('Username must be at least 5 characters and available');
                 return;
             }
             
-            const response = await apiCall('auth/register', { email, username, password });
-            if (response?.success) {
-                setEmail('');
-                setUsername('');
-                setPassword('');
-                setIsLogin(true);
-                dispatch({ type: 'SET_TOKEN', payload: response.token });
-                navigation.navigate('Home');
-            } else setError(response?.error || 'An error occurred');
-            
+            await apiCall<{success: boolean, token: string}>('auth/register', { body: { email, username, password }, method: 'POST', auth: false })
+                .then(response => {
+                    setEmail('');
+                    setUsername('');
+                    setPassword('');
+                    setIsLogin(true);
+                    dispatch({ type: 'SET_TOKEN', payload: response.token });
+                    navigation.navigate('Home');
+                }).catch(err => {
+                    console.error("Registration error:", err);
+                    Alert.alert("Registration Error", err.message || 'An error occurred during registration');
+                });
         };
 
         return (
@@ -119,6 +117,7 @@ const LoginPage = () => {
                         onChangeText={text => setUsername(text)}
                         autoCapitalize="none"
                     />
+                    <UsernameStatusIndicator status={usernameStatus} />
                 </View>
                 <View style={styles.field}>
                     <Text style={styles.text}>Password:</Text>
@@ -129,7 +128,6 @@ const LoginPage = () => {
                         onChangeText={text => setPassword(text)}
                     />
                 </View>
-                {error ? <Text style={styles.errorText}>{error}</Text> : null}
                 <TouchableOpacity style={styles.button} onPress={() => handleSubmit(noopSubmitEvent)}>
                     <Text style={styles.buttonText}>Register</Text>
                 </TouchableOpacity>
@@ -146,7 +144,6 @@ const LoginPage = () => {
                 <View style={styles.container}>
                     <Text style={styles.header}>{isLogin ? 'Login' : 'Register'}</Text>
                     {isLogin ? <LoginContents /> : <RegisterContents />}
-                    {error ? <Text style={styles.errorText}>{error}</Text> : null}
                     <TouchableOpacity style={styles.secondaryButton} onPress={switchPage}>
                         <Text style={styles.secondaryButtonText}>{isLogin ? 'Switch to Register' : 'Switch to Login'}</Text>
                     </TouchableOpacity>

@@ -109,7 +109,7 @@ export const getProfileInfo = async (req) => {
 
 
 		const userData = user.toJSON();
-		userData.profilePic = existsSync(`./public/images/profilePic/${id}.png`) ? makeBackendUrl(`/images/profilePic/${id}.png`) : makeBackendUrl(`/images/profilePic/placeholder.png`);
+		if (!requestedFields || requestedFields.includes("profilePic")) userData.profilePic = existsSync(`./public/images/profilePic/${id}.png`) ? makeBackendUrl(`/images/profilePic/${id}.png`) : makeBackendUrl(`/images/profilePic/placeholder.png`);
 		
 		return { status: 200, content: { userData, ownedListsCount, sharedListsCount } };
 	} catch (error) {
@@ -135,7 +135,7 @@ export const getUserDetails = async (req) => {
 };
 
 export const checkUsername = async (req) => {
-	const { username } = req.query;
+	const { username } = req.body;
 
 	try {
 		if (!username) throw new ApiError(400, "No username provided");

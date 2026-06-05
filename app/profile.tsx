@@ -6,12 +6,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useProfileStyles } from '@/styles';
 import { useCallback, useState, useEffect } from 'react';
 import apiCall from '@/services/apiCall';
-import PFPModal from '../components/editPfpModal';
-import EditProfileModal from '../components/editProfileModal';
+import PFPModal from '../components/modals/editPfpModal';
+import EditProfileModal from '../components/modals/editProfileModal';
 import LoadingIcon from '../assets/images/loadingIcon.png';
 import PageBreak from '@/components/pagebreak';
-import NotificationsModal from '@/components/notificationsModal';
-import PasswordModal from '@/components/editPasswordModal';
+import NotificationsModal from '@/components/modals/notificationsModal';
+import PasswordModal from '@/components/modals/editPasswordModal';
 
 const ProfilePage = () => {
     const dispatch = useDispatch();
@@ -48,16 +48,14 @@ const ProfilePage = () => {
     
     const fetchProfile = async () => {
         setLoading(true);
-        const response = await apiCall(
-            'users/me', {},
-            {"Authorization": `Bearer ${token}`},
-            'GET'
-        );
+        await apiCall<any>('users/me')
+            .then(response =>{
+                setProfile(response.userData);
+                setOwnedListsCount(response.ownedListsCount);
+                setSharedListsCount(response.sharedListsCount);
+            })
+            .catch(err => console.error("Error fetching profile data:", err));
         setLoading(false);
-        if (!response?.success) return;
-        setProfile(response.userData);
-        setOwnedListsCount(response.ownedListsCount);
-        setSharedListsCount(response.sharedListsCount);
     };
 
     useFocusEffect(

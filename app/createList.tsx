@@ -17,7 +17,7 @@ const CreateList = () => {
     const token = useSelector((state: AuthState) => state.auth.token);
 
     const createList = async () => {
-        const newList = await apiCall('lists', {name, description}, {"Authorization": `Bearer ${token}`});
+        const newList = await apiCall<{success: boolean, listId: number}>('lists', {body: { name, description }, method: 'POST', auth: true });
         if (newList.success) {
             setName('');
             setDescription('');

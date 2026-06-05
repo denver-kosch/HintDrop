@@ -8,7 +8,7 @@ import { ThemeProvider, DarkTheme, DefaultTheme } from '@react-navigation/native
 import { useColorScheme } from '@/hooks/useColorScheme';
 import Index from "./index";
 import NotFoundScreen from './+not-found';
-import List from './lists';
+import ListsPage from './lists';
 import ProfilePage from './profile';
 import LoginPage from './login';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -58,7 +58,7 @@ const TabNavigator = () => {
 			})}
 		>
 			<Tabs.Screen name="Home" options={{ headerShown: false }} component={Index} />
-			<Tabs.Screen name="List" options={{ headerShown: false }} component={List} />
+			<Tabs.Screen name="List" options={{ headerShown: false }} component={ListsPage} />
 			<Tabs.Screen
 				name="Profile"
 				options={{
@@ -73,7 +73,7 @@ const TabNavigator = () => {
 
 const Screens = [
 	{ name: 'Main', component: TabNavigator, options: { headerShown: false } },
-	{ name: 'List', component: List, options: { headerShown: false } },
+	{ name: 'List', component: ListsPage, options: { headerShown: false } },
 	{ name: 'CreateList', component: CreateList, options: { headerShown: false } },
 	{ name: 'ListDetail', component: ListDetail, options: { headerShown: false } },
 	{ name: '+not-found', component: NotFoundScreen },

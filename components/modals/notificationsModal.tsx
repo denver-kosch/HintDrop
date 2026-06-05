@@ -9,19 +9,20 @@ import { Modal, View, Text, Switch, TouchableOpacity, Alert } from "react-native
 const NotificationsModal: React.FC<NotificationsModalProps> = ({ visible, onClose, token }) => {
     const styles = useModalStyles();
 	const [enabled, setEnabled] = useState(false);
-
-	useEffect(() => {
-		const fetchSettings = async () => {
-			const response = await apiCall('users/me', { fields: ['notifications_enabled'] }, { "Authorization": `Bearer ${token}` }, 'GET');
-			if (response?.success) setEnabled(response.userData.notifications_enabled);
-		};
+	
+	useEffect(() => { 
+		const fetchSettings = async () => await apiCall< {userData: { notifications_enabled: boolean } }>('users/me', { body: { fields: ['notifications_enabled'] } })
+			.then(response => setEnabled(response?.userData?.notifications_enabled));
 		fetchSettings();
-	}, [enabled]);
+	 }, []);
 
 	const changeEnabled = async (value: boolean) => {
-		const response = await apiCall('users/me', { notifications_enabled: value }, { "Authorization": `Bearer ${token}` }, 'PATCH');
-		if (!response?.success) Alert.alert('Update Failed', "Failed to update notification settings. Please try again.");
-		else setEnabled(value);
+		await apiCall<{ success: boolean, user: { notifications_enabled: boolean } }>('users/me', { body: { notifications_enabled: value }, method: 'PATCH' })
+			.then(response => setEnabled(response.user.notifications_enabled))
+			.catch(err => {
+				console.error("Error updating notification settings:", err.message || err);
+				Alert.alert('Update Failed', "An error occurred while updating notification settings. Please try again.");
+			});
 	};
 
 	return (

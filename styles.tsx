@@ -542,6 +542,14 @@ const createModalStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => 
 			fontSize: 16,
 			alignSelf: 'flex-start',
 		} satisfies TextStyle,
+	});
+};
+
+const createUSIStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
+	const base = createBaseStyles(colorScheme, insets); 
+	const theme = getTheme(colorScheme);
+		
+	return StyleSheet.create({
 		status: {
 			color: theme.mutedText,
 			fontSize: 14,
@@ -579,5 +587,6 @@ export const useListStyles = () => useThemedStyles(createListStyles);
 export const useCreateListStyles = () => useThemedStyles(createCreateListStyles);
 export const useListDetailStyles = () => useThemedStyles(createListDetailStyles);
 export const useModalStyles = () => useThemedStyles(createModalStyles);
+export const useUSIStyles = () => useThemedStyles(createUSIStyles);
 
 export type { AppTheme, BaseStyles };

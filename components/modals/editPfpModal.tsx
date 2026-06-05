@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { View, Text, Image, TouchableOpacity, Modal } from "react-native";
+import { View, Text, Image, TouchableOpacity, Modal, Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import apiCall from "@/services/apiCall";
 import { useModalStyles } from "@/styles";
@@ -24,12 +24,12 @@ const PFPModal: FC<PFPModalProps> = ({ visible, setVisible, fetchProfile, token 
             name: 'profile.png',
             type: 'image/png'
         } as any);
-        const response = await apiCall('users/me/profile-picture', formData, {
-            "Content-Type": 'multipart/form-data',
-            "Authorization": `Bearer ${token}`
-        }, 'PATCH');
-        if (response?.success) fetchProfile();
-        else console.error("Failed to update profile picture:", response?.message);
+        await apiCall('users/me/profile-picture', { body: formData, headers: { "Content-Type": 'multipart/form-data' }, method: 'PATCH' })
+            .then(response => fetchProfile())
+            .catch(err => {
+                console.error("Failed to update profile picture:", err);
+                Alert.alert('Update Failed', "Failed to update profile picture. Please try again.");
+            })
     };
 
     const pickImage = async () => {

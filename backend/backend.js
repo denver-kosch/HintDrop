@@ -10,7 +10,7 @@ import { register, login, auth } from './api/authentication.js';
 import { SERVER_HOST, SERVER_PORT } from './config.js';
 import { createList, addToList, shareList } from './api/create.js';
 import { getLists, getList, getProfileInfo, checkUsername } from './api/read.js';
-import { updateList, updateGift, updateUser, updateProfilePic, updateUserPassword } from './api/update.js';
+import { updateList, updateGift, updateUser, updateProfilePic, updateUserPassword, reserveGift } from './api/update.js';
 import { deleteList, deleteGift, deleteUser } from './api/delete.js';
 
 
@@ -54,7 +54,7 @@ app.patch('/users/me/password', asyncHandler(updateUserPassword));
 
 app.patch('/users/me/profile-picture', upload.single('image'), asyncHandler(updateProfilePic));
 
-app.get('/users/check-username', asyncHandler(checkUsername));
+app.post('/users/check-username', asyncHandler(checkUsername));
 
 // List routes
 app.get('/lists', asyncHandler(getLists));
@@ -75,3 +75,5 @@ app.post('/lists/:listId/shares', asyncHandler(shareList));
 app.patch('/gifts/:giftId', asyncHandler(updateGift));
 
 app.delete('/gifts/:giftId', asyncHandler(deleteGift));
+
+app.patch('/gifts/:giftId/reserve', asyncHandler(reserveGift))

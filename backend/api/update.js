@@ -37,8 +37,6 @@ export const updateUser = async (req) => {
 			if (typeof value !== "string") throw new ApiError(400, `${key} must be a string`);
 			const trimmed = value.trim();
 
-			console.log(`Processed ${key}: "${value}" -> "${trimmed}"`);
-
 			if (!trimmed) {
 				if (["username", "email"].includes(key)) throw new ApiError(400, `${key} cannot be empty`);
 				else user[key] = null;
@@ -48,7 +46,12 @@ export const updateUser = async (req) => {
 
 		await user.save();
 
-		return {status: 200, content: { user: { username: user.username, email: user.email, first_name: user.first_name, last_name: user.last_name, phone_num: user.phone_num } } };
+		const newUserContent = {};
+
+		for (const key of keys) newUserContent[key] = user[key];
+		
+
+		return {status: 200, content: { user: newUserContent  } };
 	} catch (error) {
 		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}
@@ -164,6 +167,23 @@ export const updateUserPassword = async (req) => {
 		await user.save();
 
 		return { status: 200 };
+	} catch (error) {
+		throw error instanceof ApiError ? error : new ApiError(500, error.message);
+	}
+};
+
+export const reserveGift = async (re) => {
+	const { giftId } = req.body;
+	const id = extractToken(req);
+
+	try {
+		if (!id) throw new ApiError(401, "Unauthorized");
+
+		const gift = await Gift.findByPk(id);
+		if (!gift) throw new ApiError(404, "Gift not found");
+		gift.reserved_by_user_id
+		
+		return { status: 200}
 	} catch (error) {
 		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}

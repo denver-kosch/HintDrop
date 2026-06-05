@@ -1,7 +1,7 @@
 import ENDPOINT from "./serverEndpoint";
-import { Headers } from "@/types";
+import { store } from "@/store";
 
-type ApiMethod = "GET" | "POST" | "PATCH" | "DELETE";
+type ApiMethod = "GET" | "POST" | "PATCH" | "DELETE" | "PUT";
 
 const buildUrl = (api: string, query?: Record<string, unknown>) => {
     const trimmedEndpoint = ENDPOINT.endsWith("/") ? ENDPOINT.slice(0, -1) : ENDPOINT;
@@ -19,26 +19,46 @@ const buildUrl = (api: string, query?: Record<string, unknown>) => {
     return url.toString();
 };
 
-async function apiCall (api: string, body: any = {}, headers: Headers = {"Content-Type": "application/json"}, method: ApiMethod = "POST") {
+type ApiRequestOptions = {
+    method?: ApiMethod;
+    body?: Record<string, unknown> | FormData;
+    headers?: HeadersInit;
+    auth?: boolean;
+};
+
+async function apiCall<T=unknown>(api: string, { method = "GET", body = {}, headers = {}, auth = true}: ApiRequestOptions = {}) : Promise<T>{
+    const token = auth ? store.getState().auth.token : null;
     const isGet = method === "GET";
     const isFormData = body instanceof FormData;
-    const apiLink = buildUrl(api, isGet ? body : undefined);
+    const apiLink = buildUrl(api, isGet && !isFormData ? body : undefined);
+    const finalHeaders = new Headers(headers);
+
+    if (auth && token) {
+        finalHeaders.set("Authorization", `Bearer ${token}`);
+    }
+
+    if (!isFormData && !finalHeaders.has("Content-Type")) {
+        finalHeaders.set("Content-Type", "application/json");
+    }
 
     try {
         const fetchOptions: RequestInit = {
             method,
-            headers: isFormData ? headers : { ...headers, 'Content-Type': headers['Content-Type'] || 'application/json' },
-            ...(!isGet && { body: isFormData ? body : JSON.stringify(body) })
+            headers: finalHeaders,
+            ...(!isGet && { body: isFormData ? body : JSON.stringify(body) }),
         };
         const result = await fetch(apiLink, fetchOptions);
         const text = await result.text();
-        const data = text ? JSON.parse(text) : {};
-        
-        if (result.status >= 200 && result.status < 300) return data;
-        throw new Error(data?.error || text || `Request failed with status ${result.status}`);
+        let data;
+        try { data = text ? JSON.parse(text) : {}; } 
+        catch { data = text; }
+
+        if (result.ok) return data as T;
+
+        throw new Error(data?.error || data?.message || text || `Request failed with status ${result.status}`);
     } catch (error) {
         console.error("Error making API call:", error);
-        return error;
+        throw error;
     }
 };
 
