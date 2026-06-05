@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useListDetailStyles } from '@/styles';
 
 
-const ListDetail = () => {
+const ListDetailsPage = () => {
     const styles = useListDetailStyles();
 
     return (
@@ -15,4 +15,4 @@ const ListDetail = () => {
     )
 };
 
-export default ListDetail;
+export default ListDetailsPage;

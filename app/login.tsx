@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLoginStyles } from '@/styles';
 import useUsernameAvailability from '@/hooks/useUsernameAvailablity';
 import UsernameStatusIndicator from '@/components/UsernameStatusIndicator';
+import { setToken } from '@/store';
 
 const noopSubmitEvent = { preventDefault: () => undefined };
 
@@ -33,7 +34,7 @@ const LoginPage = () => {
                 .then(response => {
                     setEmail('');
                     setPassword('');
-                    dispatch({ type: 'SET_TOKEN', payload: response.token });
+                    dispatch(setToken(response.token));
                     navigation.navigate('Home');
             }).catch(err => {
                 console.error("Login error:", err);
@@ -89,7 +90,7 @@ const LoginPage = () => {
                     setUsername('');
                     setPassword('');
                     setIsLogin(true);
-                    dispatch({ type: 'SET_TOKEN', payload: response.token });
+                    dispatch(setToken(response.token));
                     navigation.navigate('Home');
                 }).catch(err => {
                     console.error("Registration error:", err);

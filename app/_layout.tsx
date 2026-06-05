@@ -1,12 +1,12 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import { ActivityIndicator } from 'react-native';
-import { Provider } from 'react-redux';
+import { Provider, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import { store, persistor } from '@/store.js';
+import { store, persistor, RootState } from '@/store.js';
 import { StatusBar } from "expo-status-bar";
 import { ThemeProvider, DarkTheme, DefaultTheme } from '@react-navigation/native';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import Index from "./index";
+import HomePage from "./home";
 import NotFoundScreen from './+not-found';
 import ListsPage from './lists';
 import ProfilePage from './profile';
@@ -16,7 +16,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { HomeIcon, ListIcon, ProfileIcon } from '@/hooks/icons';
 import { useEffect, useState } from 'react';
 import CreateList from './createList';
-import ListDetail from './listDetail';
+import ListDetailsPage from './listDetails';
 import { COLORS } from '../styles';
 
 
@@ -25,17 +25,7 @@ const Tabs = createBottomTabNavigator();
 
 const TabNavigator = () => {
 	const colorScheme = useColorScheme();
-	const [token, setToken] = useState(store.getState().auth.token);
-
-	// Subscribe to store updates for token changes
-	useEffect(() => {
-		const unsubscribe = store.subscribe(() => {
-			const newToken = store.getState().auth.token;
-			setToken(newToken);
-		});
-
-		return () => unsubscribe();
-	}, []);
+	const token = useSelector((state: RootState) => state.auth.token)
 
 	return (
 
@@ -57,7 +47,7 @@ const TabNavigator = () => {
 				},
 			})}
 		>
-			<Tabs.Screen name="Home" options={{ headerShown: false }} component={Index} />
+			<Tabs.Screen name="Home" options={{ headerShown: false }} component={HomePage} />
 			<Tabs.Screen name="List" options={{ headerShown: false }} component={ListsPage} />
 			<Tabs.Screen
 				name="Profile"
@@ -75,7 +65,7 @@ const Screens = [
 	{ name: 'Main', component: TabNavigator, options: { headerShown: false } },
 	{ name: 'List', component: ListsPage, options: { headerShown: false } },
 	{ name: 'CreateList', component: CreateList, options: { headerShown: false } },
-	{ name: 'ListDetail', component: ListDetail, options: { headerShown: false } },
+	{ name: 'ListDetail', component: ListDetailsPage, options: { headerShown: false } },
 	{ name: '+not-found', component: NotFoundScreen },
 ];
 
