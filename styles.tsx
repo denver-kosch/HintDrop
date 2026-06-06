@@ -542,6 +542,15 @@ const createModalStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => 
 			fontSize: 16,
 			alignSelf: 'flex-start',
 		} satisfies TextStyle,
+		status: {
+			color: theme.mutedText,
+			fontSize: 14,
+			marginTop: SPACING.xs,
+			alignSelf: 'flex-start',
+		} satisfies TextStyle,
+		invalid: {
+			color: theme.danger,
+		} satisfies TextStyle,
 	});
 };
 

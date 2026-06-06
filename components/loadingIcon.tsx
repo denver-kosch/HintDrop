@@ -1,10 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef, FC} from 'react';
 import { Animated, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
 const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
-const LoadingIcon: React.FC = () => {
+const LoadingIcon: FC = () => {
   const rotate = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {

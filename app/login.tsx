@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import apiCall from '@/services/apiCall';
 import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,7 +7,7 @@ import { RootStackParamList, AuthState } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLoginStyles } from '@/styles';
 import useUsernameAvailability from '@/hooks/useUsernameAvailablity';
-import UsernameStatusIndicator from '@/components/UsernameStatusIndicator';
+import UsernameStatusIndicator from '@/components/usernameStatusIndicator';
 import { setToken } from '@/store';
 
 const LoginPage = () => {

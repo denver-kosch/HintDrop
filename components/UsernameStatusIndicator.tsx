@@ -1,4 +1,4 @@
-import { Text, TextStyle, StyleProp } from "react-native";
+import { Text } from "react-native";
 import { UsernameStatus } from "@/hooks/useUsernameAvailablity";
 import { useUSIStyles } from "@/styles";
 

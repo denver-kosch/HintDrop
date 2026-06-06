@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import apiCall from "@/services/apiCall";
 import { useModalStyles } from "@/styles";
 import { EditProfileModalProps } from "@/types";
-import UsernameStatusIndicator from "@/components/UsernameStatusIndicator";
+import UsernameStatusIndicator from "@/components/usernameStatusIndicator";
 import useUsernameAvailability from "@/hooks/useUsernameAvailablity";
 
 
