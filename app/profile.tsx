@@ -12,6 +12,7 @@ import LoadingIcon from '../assets/images/loadingIcon.png';
 import PageBreak from '@/components/pagebreak';
 import NotificationsModal from '@/components/modals/notificationsModal';
 import PasswordModal from '@/components/modals/editPasswordModal';
+import { removeToken } from '@/store';
 
 const ProfilePage = () => {
     const dispatch = useDispatch();
@@ -72,7 +73,7 @@ const ProfilePage = () => {
 
 
     const logout = () => {
-        dispatch({ type: 'REMOVE_TOKEN' });
+        dispatch(removeToken());
         navigation.navigate('Home');
     };
 

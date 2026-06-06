@@ -25,6 +25,7 @@ const NotificationsModal: React.FC<NotificationsModalProps> = ({ visible, onClos
 			});
 	};
 
+	
 	return (
 		<Modal visible={visible} transparent={true} animationType="slide" onRequestClose={onClose} >
 			<View style={styles.modalBackdrop}>
