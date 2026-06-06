@@ -1,6 +1,6 @@
 import { useListStyles } from '@/styles';
 import { useFocusEffect, useNavigation, NavigationProp } from '@react-navigation/native';
-import { Suspense, useCallback, useState, useMemo } from 'react';
+import { Suspense, useCallback, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import apiCall from '@/services/apiCall';

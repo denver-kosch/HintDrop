@@ -1,19 +1,22 @@
-import React from 'react';
-import { Text } from 'react-native';
+import { Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, Stack } from 'expo-router';
 import { StyleSheet } from 'react-native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '@/types';
 
 
 export default function NotFoundScreen() {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   return (
     <>
       <Stack.Screen options={{ title: 'Oops!' }} />
       <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
         <Text style={styles.title}>This screen doesn't exist.</Text>
-        <Link href="/" style={styles.link}>
+        <TouchableOpacity onPress={() => navigation.navigate("Main")}>
           <Text style={styles.link}>Go to home screen!</Text>
-        </Link>
+        </TouchableOpacity>
       </SafeAreaView>
     </>
   );

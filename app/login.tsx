@@ -10,8 +10,6 @@ import useUsernameAvailability from '@/hooks/useUsernameAvailablity';
 import UsernameStatusIndicator from '@/components/UsernameStatusIndicator';
 import { setToken } from '@/store';
 
-const noopSubmitEvent = { preventDefault: () => undefined };
-
 const LoginPage = () => {
     const dispatch = useDispatch();
     const token = useSelector((state: AuthState) => state.auth.token);
@@ -27,9 +25,7 @@ const LoginPage = () => {
         const [email, setEmail] = useState('');
         const [password, setPassword] = useState('');
 
-        const handleSubmit = async (event: { preventDefault: () => void; }) => {
-            event.preventDefault();
-
+        const handleSubmit = async () => {
             await apiCall<{success: boolean, token: string}>('auth/login', { body: { email, password }, method: 'POST', auth: false })
                 .then(response => {
                     setEmail('');
@@ -63,7 +59,7 @@ const LoginPage = () => {
                         onChangeText={text => setPassword(text)}
                     />
                 </View>
-                <TouchableOpacity style={styles.button} onPress={() => handleSubmit(noopSubmitEvent)}>
+                <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
             </View>
@@ -76,9 +72,7 @@ const LoginPage = () => {
         const [password, setPassword] = useState('');
         const {usernameStatus, isUsernameValid} = useUsernameAvailability({username});
 
-        const handleSubmit = async (event: { preventDefault: () => void; }) => {
-            event.preventDefault();
-            
+        const handleSubmit = async () => {
             if (!isUsernameValid) {
                 Alert.alert('Username must be at least 5 characters and available');
                 return;
@@ -129,7 +123,7 @@ const LoginPage = () => {
                         onChangeText={text => setPassword(text)}
                     />
                 </View>
-                <TouchableOpacity style={styles.button} onPress={() => handleSubmit(noopSubmitEvent)}>
+                <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                     <Text style={styles.buttonText}>Register</Text>
                 </TouchableOpacity>
             </View>

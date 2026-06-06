@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 import { AuthState } from "@/types";
 
 
-export default function Index() {
+export default function HomePage() {
 	const token = useSelector((state: AuthState) => state.auth.token);
 	const styles = useHomeStyles();
 	const [name, setName] = useState<String>("");

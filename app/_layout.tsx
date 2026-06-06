@@ -2,13 +2,11 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import { ActivityIndicator } from 'react-native';
 import { Provider, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import { store, persistor, RootState } from '@/store.js';
 import { store, persistor, RootState } from '@/store';
 import { StatusBar } from "expo-status-bar";
 import { ThemeProvider, DarkTheme, DefaultTheme } from '@react-navigation/native';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import HomePage from "./home";
-import HomePage from "./home";
+import HomePage from "./index";
 import NotFoundScreen from './+not-found';
 import ListsPage from './lists';
 import ProfilePage from './profile';
@@ -47,7 +45,7 @@ const TabNavigator = () => {
 					backgroundColor: colorScheme === 'dark' ? COLORS.void : COLORS.offWhite,
 					borderTopColor: colorScheme === 'dark' ? COLORS.graphite : '#D8D8DF',
 					borderTopWidth: 1,
-				},
+				}
 			})}
 		>
 			<Tabs.Screen name="Home" options={{ headerShown: false }} component={HomePage} />
