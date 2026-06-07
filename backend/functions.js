@@ -18,8 +18,12 @@ export const handleError = (error, res) => {
   else sendJsonResponse(res, 500, { error: 'Internal Server Error' });
 };
 
-export const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next, res))
-  .then(({status, content = {}}) => sendJsonResponse(res, status, content))
+export const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next))
+  .then((result) => {
+      if (!result) return;
+      const { status, content = {} } = result;
+      sendJsonResponse(res, status, content);
+    })
   .catch(error => handleError(error, res));
 
 

@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
 import { User, List, Gift, UserList } from "../models.js";
-import { extractToken } from "./authentication.js";
 import { ApiError } from "../functions.js";
 import sharp from "sharp";
 import { join } from "path";
@@ -15,7 +14,7 @@ const parseBoolean = (value) => {
 
 export const updateUser = async (req) => {
 	const keys = Object.keys(req.body);
-	const id = extractToken(req);
+	const id = req.user.id;
 	
 	try {
 		if (!id) throw new ApiError(401, "Unauthorized");
@@ -60,7 +59,7 @@ export const updateUser = async (req) => {
 export const updateList = async (req) => {
 	const { name, description, isShareable } = req.body;
 	const { listId } = req.params;
-	const id = extractToken(req);
+	const id = req.user.id;
 
 	try {
 		if (!id) throw new ApiError(401, "Unauthorized");
@@ -89,7 +88,7 @@ export const updateList = async (req) => {
 export const updateGift = async (req) => {
 	const { name, description, url, price } = req.body;
 	const { giftId } = req.params;
-	const id = extractToken(req);
+	const id = req.user.id;
 
 	try {
 		if (!id) throw new ApiError(401, "Unauthorized");
@@ -118,7 +117,7 @@ export const updateGift = async (req) => {
 };
 
 export const updateProfilePic = async (req) => {
-	const id = extractToken(req);
+	const id = req.user.id;
 	const image = req.file?.buffer.toString("base64") || req.body.image;
 
 	try {
@@ -153,7 +152,7 @@ export const updateProfilePic = async (req) => {
 
 export const updateUserPassword = async (req) => {
 	const { currentPassword, newPassword } = req.body;
-	const id = extractToken(req);
+	const id = req.user.id;
 	
 	try {
 		if (!id) throw new ApiError(401, "Unauthorized");
@@ -174,7 +173,7 @@ export const updateUserPassword = async (req) => {
 
 export const reserveGift = async (re) => {
 	const { giftId } = req.body;
-	const id = extractToken(req);
+	const id = req.user.id;
 
 	try {
 		if (!id) throw new ApiError(401, "Unauthorized");

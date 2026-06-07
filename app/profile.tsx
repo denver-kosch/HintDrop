@@ -54,8 +54,7 @@ const ProfilePage = () => {
                 setProfile(response.userData);
                 setOwnedListsCount(response.ownedListsCount);
                 setSharedListsCount(response.sharedListsCount);
-            })
-            .catch(err => console.error("Error fetching profile data:", err));
+            }).catch(err => console.error("Error fetching profile data:", err));
         setLoading(false);
     };
 
@@ -79,12 +78,12 @@ const ProfilePage = () => {
 
     if (loading) return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <View style={styles.loadingContainer}>
-          <Animated.View style={{ transform: [{ rotate: spin }], marginBottom: 20 }}>
-            <Image source={LoadingIcon} style={{ width: 60, height: 60 }} />
-          </Animated.View>
-          <Text style={styles.text}>Loading profile...</Text>
-        </View>
+            <View style={styles.loadingContainer}>
+            <Animated.View style={{ transform: [{ rotate: spin }], marginBottom: 20 }}>
+                <Image source={LoadingIcon} style={{ width: 60, height: 60 }} />
+            </Animated.View>
+            <Text style={styles.text}>Loading profile...</Text>
+            </View>
         </SafeAreaView>
     );
 

@@ -1,11 +1,10 @@
 import { ApiError } from "../functions.js";
 import {User, List, UserList, Gift } from "../models.js";
-import { extractToken } from "./authentication.js";
 import { sequelize } from "../models.js";
 
 export const createList = async (req) => {
 	const { name, description, is_shareable = false } = req.body;
-	const id = extractToken(req);
+	const id = req.user.id;
 	if (!id) throw new ApiError(401, "Unauthorized");
 	const transaction = await sequelize.transaction();
 	try {
@@ -33,7 +32,7 @@ export const createList = async (req) => {
 export const addToList = async (req) => {
 	const { name, description, url, price } = req.body;
 	const { listId } = req.params;
-	const id = extractToken(req);
+	const id = req.user.id;
 
 	try {
 		if (!id) throw new ApiError(401, "Unauthorized");
@@ -65,7 +64,7 @@ export const addToList = async (req) => {
 export const shareList = async (req) => {
   const { username, role = "viewer" } = req.body;
   const { listId } = req.params;
-  const id = extractToken(req);
+  const id = req.user.id;
 
   try {
     if (!id) throw new ApiError(401, "Unauthorized");

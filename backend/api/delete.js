@@ -1,10 +1,9 @@
-import { extractToken } from "./authentication.js";
 import { ApiError } from "../functions.js";
 import { User, List, Gift, UserList } from "../models.js";
 
 export const deleteList = async (req) => {
 	const { listId } = req.params;
-	const id = extractToken(req);
+	const id = req.user.id;
 
 	try {
 		if (!listId) throw new ApiError(400, "No list id provided");
@@ -29,7 +28,7 @@ export const deleteList = async (req) => {
 
 export const deleteGift = async (req) => {
 	const { giftId } = req.params;
-	const id = extractToken(req);
+	const id = req.user.id;
 
 	try {
 		if (!giftId) throw new ApiError(400, "No gift id provided");
@@ -53,7 +52,7 @@ export const deleteGift = async (req) => {
 };
 
 export const deleteUser = async (req) => {
-	const id = extractToken(req);
+	const id = req.user.id;
 
 	try {
 		if (!id) throw new ApiError(401, "Unauthorized");

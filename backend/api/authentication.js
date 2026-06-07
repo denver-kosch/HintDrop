@@ -30,14 +30,17 @@ export const login = async (req) => {
 	} else throw new ApiError(401, 'Invalid email or password');
 };
 
-export const auth = async (req) => {
+export const requireAuth = async (req, res, next) => {
 	try {
-		let token = req.headers.authorization?.split(" ")[1];
-		if (!token) throw new ApiError(401, 'No token provided');
-		jwt.verify(token, SECRET); // Throws an error if the token is invalid
-		return {status:200};
+		const token = req.headers.authorization?.split(" ")[1];
+		if (!token) throw new ApiError(401, "No token provided");
+		
+		const decoded = jwt.verify(token, SECRET);
+		req.user = decoded;
+
+		next();
 	} catch {
-		throw new ApiError(401, 'Invalid token');
+		next(new ApiError(401, "Invalid token"));
 	}
 };
 
@@ -46,14 +49,4 @@ export const verifyUser = async (req) => {
 	This is for verifying a user. The method (email, phone number, etc.) is not determined,
 	but this function will flip a "verified" boolean on the user model to true once the user has been verified.
 	*/
-};
-
-export const extractToken = req => {
-	try {
-		const token = req.headers.authorization?.split(" ")[1];
-		const content = jwt.verify(token, SECRET);
-		return (content && content.id);
-	} catch {
-		return false;
-	}
 };

@@ -19,14 +19,12 @@ import ListDetailsPage from './listDetails';
 import { COLORS } from '../styles';
 
 
-
 const Stack = createNativeStackNavigator();
 const Tabs = createBottomTabNavigator();
 
 const TabNavigator = () => {
 	const colorScheme = useColorScheme();
 	const token = useSelector((state: RootState) => state.auth.token);
-	console.log(token)
 
 	return (
 
@@ -75,19 +73,17 @@ export default function RootLayout() {
 	const colorScheme = useColorScheme();
 
 	return (
-  	<Provider store={store}>
-		<PersistGate loading={<ActivityIndicator/>} persistor={persistor}>
-			<SafeAreaProvider>
-				<ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-					<Stack.Navigator initialRouteName='Main'>
-						{Screens.map(({ name, component, options }) => (
-							<Stack.Screen key={name} name={name} component={component} options={options} />
-						))}
-					</Stack.Navigator>
-					<StatusBar style="auto" />
-				</ThemeProvider>
-			</SafeAreaProvider>
-		</PersistGate>
-	</Provider>
-  );
-}
+		<Provider store={store}>
+			<PersistGate loading={<ActivityIndicator/>} persistor={persistor}>
+				<SafeAreaProvider>
+					<ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+						<Stack.Navigator initialRouteName='Main'>
+							{Screens.map(({ name, component, options }) => (<Stack.Screen key={name} name={name} component={component} options={options} />))}
+						</Stack.Navigator>
+						<StatusBar style="auto" />
+					</ThemeProvider>
+				</SafeAreaProvider>
+			</PersistGate>
+		</Provider>
+	);
+};

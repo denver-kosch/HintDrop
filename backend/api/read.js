@@ -1,5 +1,4 @@
 import { User, List, UserList } from "../models.js";
-import { extractToken } from "./authentication.js";
 import { ApiError, makeBackendUrl } from "../functions.js";
 import { existsSync } from "fs";
 import { Op } from "sequelize";
@@ -22,7 +21,7 @@ const SAFE_USER_FIELDS = [ "id", "username", "first_name", "last_name", "email",
 
 export const getLists = async (req) => {
 	try {
-		const id = extractToken(req);
+		const id = req.user.id;
 
 		if (!id) throw new ApiError(401, "Unauthorized");
 		
@@ -71,7 +70,7 @@ export const getLists = async (req) => {
 
 export const getList = async (req) => {
 	const { listId } = req.params;
-	const id = extractToken(req);
+	const id = req.user.id;
 
 	try {
 		if (!listId) throw new ApiError(400, "No list id provided");
@@ -94,7 +93,7 @@ export const getList = async (req) => {
 };
 
 export const getProfileInfo = async (req) => {
-	const id = extractToken(req);
+	const id = req.user.id;
 	
 	try {
 		if (!id) throw new ApiError(401, "Unauthorized");
@@ -118,7 +117,7 @@ export const getProfileInfo = async (req) => {
 };
 
 export const getUserDetails = async (req) => {
-	const id = extractToken(req);
+	const id = req.user.id;
 	const fields = req.query.fields?.split(",").filter(Boolean);
 
 	try {
