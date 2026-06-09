@@ -78,6 +78,19 @@ export const User = sequelize.define("User", {
 		type: DataTypes.BOOLEAN,
 		allowNull: false,
 		defaultValue: true
+	},
+	has_pfp: {
+		type: DataTypes.BOOLEAN,
+		allowNull: false,
+		defaultValue: false
+	},
+	pfp_version: {
+		type: DataTypes.INTEGER,
+		allowNull: false,
+		defaultValue: 0,
+		validate: {
+			min: 0
+		}
 	}
 	}, {
 		timestamps: true,
@@ -103,7 +116,7 @@ export const List = sequelize.define('List', {
 		type: DataTypes.BOOLEAN,
 		allowNull: false,
 		defaultValue: false
-	}
+	},
 	}, {
 		timestamps: true,
 		underscored: true,
@@ -142,13 +155,6 @@ export const Gift = sequelize.define("Gift", {
 			isUrl: true
 		},
 	},
-	image_url: {
-		type: DataTypes.STRING(2048),
-		allowNull: true,
-		validate: {
-			isUrl: true
-		},
-	},
 	quantity: {
 		type: DataTypes.INTEGER,
 		allowNull: false,
@@ -168,7 +174,20 @@ export const Gift = sequelize.define("Gift", {
 			model: User,
 			key: 'id'
 		}
-	}
+	},
+	has_image: {
+		type: DataTypes.BOOLEAN,
+		allowNull: false,
+		defaultValue: false,
+	},
+	image_version: {
+		type: DataTypes.INTEGER,
+		allowNull: false,
+		defaultValue: 0,
+		validate: {
+			min: 0,
+		},
+	},
 	}, {
 		timestamps: true,
 		underscored: true,

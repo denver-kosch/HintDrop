@@ -36,6 +36,8 @@ export const requireAuth = async (req, res, next) => {
 		if (!token) throw new ApiError(401, "No token provided");
 		
 		const decoded = jwt.verify(token, SECRET);
+		const user = await User.count({where: {id: decoded.id}});
+		if (!user) throw new ApiError(401, "No user found");
 		req.user = decoded;
 
 		next();

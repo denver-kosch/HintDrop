@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { View, Text, Image, TouchableOpacity, Modal, Alert } from "react-native";
+import { View, Text, Image, TouchableOpacity, Modal, Alert, Touchable } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import apiCall from "@/services/apiCall";
 import { useModalStyles } from "@/styles";
@@ -43,8 +43,11 @@ const PFPModal: FC<PFPModalProps> = ({ visible, setVisible, fetchProfile, token 
         if (result.canceled) return;
         const selectedImage = result.assets[0];
         setImage(selectedImage);
+    };
+    
+    const submitImage = async () => {
         setVisible(false);
-        await updateProfilePic(selectedImage);
+        await updateProfilePic(image);
         setImage(null);
     };
     
@@ -59,16 +62,18 @@ const PFPModal: FC<PFPModalProps> = ({ visible, setVisible, fetchProfile, token 
         <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Change Profile Picture</Text>
 
-            {image ? (
-            <Image source={{ uri: image.uri }} style={styles.previewImage} />
-            ) : (
-            <View style={styles.placeholderShape}>
-                <Text style={styles.placeholderText}>No Image</Text>
-            </View>
-            )}
+            <TouchableOpacity onPress={pickImage}>
+                {image ? (
+                <Image source={{ uri: image.uri }} style={styles.previewImage} />
+                ) : (
+                <View style={styles.placeholderShape}>
+                    <Text style={[styles.placeholderText, {textAlign: 'center'}]}>Tap here to Change Image</Text>
+                </View>
+                )}
+            </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button} onPress={pickImage}>
-            <Text style={styles.buttonText}>Upload New Image</Text>
+            <TouchableOpacity style={styles.button} onPress={submitImage}>
+            <Text style={styles.buttonText}>Upload</Text>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => setVisible(false)}>

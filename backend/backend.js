@@ -9,7 +9,7 @@ import { asyncHandler } from './functions.js';
 import { register, login, requireAuth } from './api/authentication.js';
 import { SERVER_HOST, SERVER_PORT } from './config.js';
 import { createList, addToList, shareList } from './api/create.js';
-import { getLists, getList, getProfileInfo, checkUsername } from './api/read.js';
+import { getLists, getList, getProfileInfo, checkUsername, getGift } from './api/read.js';
 import { updateList, updateGift, updateUser, updateProfilePic, updateUserPassword, reserveGift } from './api/update.js';
 import { deleteList, deleteGift, deleteUser } from './api/delete.js';
 
@@ -69,6 +69,8 @@ app.post('/lists/:listId/gifts', requireAuth, asyncHandler(addToList));
 app.post('/lists/:listId/shares', requireAuth, asyncHandler(shareList));
 
 // Gift routes
+app.get('/gifts/:giftId', requireAuth, asyncHandler(getGift));
+
 app.patch('/gifts/:giftId', requireAuth, asyncHandler(updateGift));
 
 app.delete('/gifts/:giftId', requireAuth, asyncHandler(deleteGift));

@@ -130,19 +130,7 @@ export const updateProfilePic = async (req) => {
 		if (!imageBuffer || !imageBuffer.length) throw new ApiError(400, "Invalid image data");
 		
 		const imagePath = join(process.cwd(), 'public', 'images', 'profilePic', `${id}.png`);
-		await sharp(imageBuffer)
-			.trim()
-			.resize(200, 200)
-			.composite([{
-				input: Buffer.from(
-					`<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-						<circle cx="100" cy="100" r="100" fill="white"/>
-					</svg>`
-				),
-				blend: 'dest-in'
-			}])
-			.png()
-			.toFile(imagePath);
+		await sharp(imageBuffer).trim().resize(200, 200).composite([{input: Buffer.from(`<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="100" r="100" fill="white"/></svg>`), blend: 'dest-in'}]).png().toFile(imagePath);
 
 		return { status: 200 };
 	} catch (error) {
@@ -171,7 +159,7 @@ export const updateUserPassword = async (req) => {
 	}
 };
 
-export const reserveGift = async (re) => {
+export const reserveGift = async (req) => {
 	const { giftId } = req.body;
 	const id = req.user.id;
 
@@ -180,7 +168,7 @@ export const reserveGift = async (re) => {
 
 		const gift = await Gift.findByPk(id);
 		if (!gift) throw new ApiError(404, "Gift not found");
-		gift.reserved_by_user_id
+		
 		
 		return { status: 200}
 	} catch (error) {

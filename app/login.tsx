@@ -17,7 +17,7 @@ const LoginPage = () => {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const [isLogin, setIsLogin] = useState(true);
 
-    useFocusEffect(useCallback(() => {if (token) navigation.navigate('Home');}, [token, navigation]));
+    useFocusEffect(useCallback(() => { if (token) navigation.navigate("Main", { screen: "Home" }) }, [token, navigation]));
 
     const switchPage = () => setIsLogin(!isLogin);
 
@@ -31,7 +31,7 @@ const LoginPage = () => {
                     setEmail('');
                     setPassword('');
                     dispatch(setToken(response.token));
-                    navigation.navigate('Home');
+                    navigation.navigate("Main", { screen: "Home" });
             }).catch(err => {
                 console.error("Login error:", err);
                 Alert.alert("Login Error", err.message || 'An error occurred during login');
@@ -85,7 +85,7 @@ const LoginPage = () => {
                     setPassword('');
                     setIsLogin(true);
                     dispatch(setToken(response.token));
-                    navigation.navigate('Home');
+                    navigation.navigate("Main", { screen: "Home" });
                 }).catch(err => {
                     console.error("Registration error:", err);
                     Alert.alert("Registration Error", err.message || 'An error occurred during registration');

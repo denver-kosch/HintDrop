@@ -1,6 +1,5 @@
-import { User, List, UserList } from "../models.js";
+import { User, List, UserList, Gift } from "../models.js";
 import { ApiError, makeBackendUrl } from "../functions.js";
-import { existsSync } from "fs";
 import { Op } from "sequelize";
 
 const flattenMembership = (membership) => {
@@ -13,11 +12,11 @@ const flattenMembership = (membership) => {
 			pinned_at: membership.pinned_at,
 			archived_at: membership.archived_at,
 		},
-		owner: members[0].username,
+		owner: members?.[0]?.username ?? null
 	};
 };
 
-const SAFE_USER_FIELDS = [ "id", "username", "first_name", "last_name", "email", "phone_num", "verified", "admin", "created_at", "updated_at", "notifications_enabled" ];
+const SAFE_USER_FIELDS = [ "id", "username", "first_name", "last_name", "email", "phone_num", "verified", "admin", "created_at", "updated_at", "notifications_enabled", "has_pfp", "pfp_version" ];
 
 export const getLists = async (req) => {
 	try {
@@ -55,10 +54,11 @@ export const getLists = async (req) => {
 				["last_opened_at", "DESC"],
 				[{ model: List, as: "list" }, "updated_at", "DESC"],
 			],
-		}).then(memberships => memberships.map(flattenMembership));
+		});
 
+		const flatMemberships = memberships.map(flattenMembership);
 
-		memberships.forEach(membership => {
+		flatMemberships.forEach(membership => {
 			if (membership.membership.role === "owner") lists.owned.push(membership);
 			else lists.shared.push(membership);
 		});
@@ -78,15 +78,16 @@ export const getList = async (req) => {
 
 		const membership = await UserList.findOne({ 
 			where: { user_id: id, list_id: listId, archived_at: null }, 
-			include: [{ model: List, as: "list" }]
+			include: [{ model: List, as: "list" }],
 		});
+
 		if (!membership) throw new ApiError(404, "List not found or access denied");
-
+		
 		await membership.update({ last_opened_at: new Date() });
-
+		
 		const gifts = await membership.list.getGifts({ order: [["created_at", "DESC"]] });
 
-		return { status: 200, content: { list: membership.list, gifts } };
+		return { status: 200, content: { list: {...membership.list.dataValues, role: membership.role}, gifts: [...gifts] } };
 	} catch (error) {
 		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}
@@ -106,9 +107,8 @@ export const getProfileInfo = async (req) => {
 		const ownedListsCount = await UserList.count({where: { user_id: id, archived_at: null, role: "owner" } });
 		const sharedListsCount = await UserList.count({where: { user_id: id, archived_at: null, role: { [Op.ne]: "owner" } } });
 
-
-		const userData = user.toJSON();
-		if (!requestedFields || requestedFields.includes("profilePic")) userData.profilePic = existsSync(`./public/images/profilePic/${id}.png`) ? makeBackendUrl(`/images/profilePic/${id}.png`) : makeBackendUrl(`/images/profilePic/placeholder.png`);
+		const {has_pfp, pfp_version, ...userData} = user.toJSON();
+		if (!requestedFields || requestedFields.includes("profilePic")) userData.profilePic = has_pfp ? makeBackendUrl(`/images/profilePic/${id}.png?v=${pfp_version}`) : makeBackendUrl(`/images/profilePic/placeholder.png`);
 		
 		return { status: 200, content: { userData, ownedListsCount, sharedListsCount } };
 	} catch (error) {
@@ -139,8 +139,27 @@ export const checkUsername = async (req) => {
 	try {
 		if (!username) throw new ApiError(400, "No username provided");
 		if (!/^[a-zA-Z0-9_]+$/.test(username)) throw new ApiError(400, "Invalid username format");
-		const user = await User.count({ where: { username } });
+		const user = await User.count({ where: { username: username.trim() }});
 		return { status: 200, content: { available: user == 0} };
+	} catch (error) {
+		throw error instanceof ApiError ? error : new ApiError(500, error.message);
+	}
+};
+
+const excludeGiftFields = ['reserved_by_user_id', 'list_id'];
+
+export const getGift = async (req) => {
+	const { giftId } = req.params;
+	
+	try {
+		const giftData = await Gift.findByPk(giftId,{include: [{ model: User, as: "reservedBy", attributes: ['username'] }], attributes: {exclude: excludeGiftFields}});
+		if (!giftData) throw new ApiError(404, "Gift not found!");
+		const gift = giftData.toJSON();
+		if (gift.reservedBy) gift.reservedBy = gift.reservedBy.username;
+		gift.image_url = gift.has_image ? makeBackendUrl(`/images/gifts/${giftId}.png?v=${gift.image_version}`) : makeBackendUrl(`/images/gifts/placeholder.png`);
+
+		console.log(gift)
+		return { status: 200, content: { gift } };
 	} catch (error) {
 		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}

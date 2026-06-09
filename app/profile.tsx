@@ -64,7 +64,7 @@ const ProfilePage = () => {
                 setProfile({});
                 setOwnedListsCount(0);
                 setSharedListsCount(0);
-                navigation.navigate('Home');
+                navigation.navigate("Main", { screen: "Home" });
             }
             else fetchProfile();
         }, [token, navigation])
@@ -73,7 +73,7 @@ const ProfilePage = () => {
 
     const logout = () => {
         dispatch(removeToken());
-        navigation.navigate('Home');
+        navigation.navigate("Main", { screen: "Home" });
     };
 
     if (loading) return (
@@ -123,11 +123,11 @@ const ProfilePage = () => {
             </Text>
 
             <View style={styles.statsRow}>
-                <TouchableOpacity onPress={() => navigation.navigate("List")} style={styles.statItem}>
+                <TouchableOpacity onPress={() => navigation.navigate("Main", { screen: "List" })} style={styles.statItem}>
                     <Text style={styles.statNumber}>{ownedListsCount}</Text>
                     <Text style={styles.text}>Owned Lists</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate("List")} style={styles.statItem}>
+                <TouchableOpacity onPress={() => navigation.navigate("Main", { screen: "List" })} style={styles.statItem}>
                     <Text style={styles.statNumber}>{sharedListsCount}</Text>
                     <Text style={styles.text}>Shared Lists</Text>
                 </TouchableOpacity>

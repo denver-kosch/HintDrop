@@ -467,6 +467,16 @@ const createListDetailStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets
 		container: base.container,
 		header: base.centeredHeader,
 		text: base.text,
+		optionsRow: {
+			flex:1,
+			flexDirection: 'row',
+			width: '50%',
+			justifyContent: 'space-between'
+		},
+		option: {
+			...base.text,
+			fontSize: 20
+		}
 	});
 };
 
@@ -577,6 +587,36 @@ const createUSIStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
 	});
 };
 
+const createGiftDetailStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
+	const base = createBaseStyles(colorScheme, insets);
+
+	return StyleSheet.create({
+		safeArea: base.safeArea,
+		container: base.container,
+		header: base.centeredHeader,
+		text: base.text,
+		giftImage: {
+			height: 125,
+			width: "100%",
+		} satisfies ImageStyle,
+	});
+};
+
+const createAddGiftStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets) => {
+	const base = createBaseStyles(colorScheme, insets);
+
+	return StyleSheet.create({
+		safeArea: base.safeArea,
+		container: base.container,
+		header: base.centeredHeader,
+		text: base.text,
+		giftImage: {
+			height: 125,
+			width: "100%",
+		} satisfies ImageStyle,
+	});
+};
+
 const useThemedStyles = <T extends StyleSheet.NamedStyles<T>>(
 	createStyles: (colorScheme: ColorSchemeName, insets: EdgeInsets) => T,
 ) => {
@@ -597,5 +637,7 @@ export const useCreateListStyles = () => useThemedStyles(createCreateListStyles)
 export const useListDetailStyles = () => useThemedStyles(createListDetailStyles);
 export const useModalStyles = () => useThemedStyles(createModalStyles);
 export const useUSIStyles = () => useThemedStyles(createUSIStyles);
+export const useGiftDetailStyles = () => useThemedStyles(createGiftDetailStyles);
+export const useAddGiftStyles = () => useThemedStyles(createAddGiftStyles);
 
 export type { AppTheme, BaseStyles };

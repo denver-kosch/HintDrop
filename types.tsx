@@ -1,14 +1,15 @@
 
 export type RootStackParamList = {
-    Main: undefined;
-    Home: undefined;
-    List: undefined;
-    Profile: undefined;
+    Main: {
+        screen?: "Home" | "List" | "Profile" | "Login";
+    };
     Login: undefined;
     ListDetail: { id: number };
     CreateList: undefined;
     EditProfile: undefined;
     Register: undefined;
+    GiftDetail: { id: number };
+    AddGift: { listId: number, listName: string | any};
   };
 
 export type AuthState = {
@@ -61,6 +62,7 @@ export type List = {
 };
 
 export type Gift = {
+    id: number;
     name?: string;
     description?: string;
     price?: number;
@@ -68,5 +70,5 @@ export type Gift = {
     image_url?: string;
     quantity?: number;
     priority?: number;
-    reserved_by?: UserProfile;
+    reservedBy?: UserProfile;
 }

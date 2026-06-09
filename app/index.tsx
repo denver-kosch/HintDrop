@@ -14,13 +14,13 @@ export default function HomePage() {
 	const [name, setName] = useState<String>("");
 
 	useFocusEffect(
-	useCallback(() => {
-		const fetchUser = async () => apiCall<{ userData: { first_name: string} }>('users/me', { body: {fields: ['first_name'] }})
-			.then(user => setName(user?.userData?.first_name || ""))
-			.catch(err => console.error("Error fetching user data:", err));
-		if (token) fetchUser();
-		else setName("");
-	}, [token])
+		useCallback(() => {
+			const fetchUser = async () => apiCall<{ userData: { first_name: string} }>('users/me', { body: {fields: ['first_name'] }})
+				.then(user => setName(user?.userData?.first_name || ""))
+				.catch(err => console.error("Error fetching user data:", err));
+			if (token) fetchUser();
+			else setName("");
+		}, [token])
 	);
 
 

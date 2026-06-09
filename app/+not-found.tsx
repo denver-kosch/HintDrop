@@ -14,7 +14,7 @@ export default function NotFoundScreen() {
       <Stack.Screen options={{ title: 'Oops!' }} />
       <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
         <Text style={styles.title}>This screen doesn't exist.</Text>
-        <TouchableOpacity onPress={() => navigation.navigate("Main")}>
+        <TouchableOpacity onPress={() => navigation.navigate("Main", { screen: "Home" })}>
           <Text style={styles.link}>Go to home screen!</Text>
         </TouchableOpacity>
       </SafeAreaView>

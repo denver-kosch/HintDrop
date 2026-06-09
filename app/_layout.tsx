@@ -11,12 +11,14 @@ import NotFoundScreen from './+not-found';
 import ListsPage from './lists';
 import ProfilePage from './profile';
 import LoginPage from './login';
+import CreateList from './createList';
+import ListDetailsPage from './listDetails';
+import GiftDetailsPage from './giftDetails';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { HomeIcon, ListIcon, ProfileIcon } from '@/hooks/icons';
-import CreateList from './createList';
-import ListDetailsPage from './listDetails';
 import { COLORS } from '../styles';
+import AddGiftPage from './addGiftToList';
 
 
 const Stack = createNativeStackNavigator();
@@ -65,6 +67,8 @@ const Screens = [
 	// { name: 'List', component: ListsPage, options: { headerShown: false } },
 	{ name: 'CreateList', component: CreateList, options: { headerShown: false } },
 	{ name: 'ListDetail', component: ListDetailsPage, options: { headerShown: false } },
+	{ name: 'GiftDetail', component: GiftDetailsPage, options: { headerShown: false } },
+	{ name: 'AddGift', component: AddGiftPage, options: { headerShown: false } },
 	{ name: '+not-found', component: NotFoundScreen },
 ];
 
