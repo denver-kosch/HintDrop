@@ -1,8 +1,6 @@
 import { Text, View, Image, TouchableOpacity, Animated, Easing, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
-import { RootStackParamList, } from '@/types';
-import { useDispatch, useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
 import { useProfileStyles } from '@/styles';
 import { useCallback, useState, useEffect } from 'react';
 import apiCall from '@/services/apiCall';
@@ -12,14 +10,15 @@ import LoadingIcon from '../assets/images/loadingIcon.png';
 import PageBreak from '@/components/pagebreak';
 import NotificationsModal from '@/components/modals/notificationsModal';
 import PasswordModal from '@/components/modals/editPasswordModal';
-import { removeToken } from '@/store';
+import { applyProfile, logout as lo } from '@/services/storeFuncs';
+import { useProfile, useToken } from '@/hooks/storeHooks';
+import { useAppNavigation } from '@/hooks/appNav';
 
 const ProfilePage = () => {
-    const dispatch = useDispatch();
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-    const token = useSelector((state: any) => state.auth.token);
+    const navigation = useAppNavigation();
+    const token = useToken();
     const styles = useProfileStyles();
-    const [profile, setProfile] = useState<any>({});
+    const profile = useProfile();
     const [pfpMdalVisible, setPfpModalVisible] = useState(false);
     const [editModalVisible, setEditModalVisible] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -50,8 +49,8 @@ const ProfilePage = () => {
     const fetchProfile = async () => {
         setLoading(true);
         await apiCall<any>('users/me')
-            .then(response =>{
-                setProfile(response.userData);
+            .then(response => {
+                applyProfile(response.userData);
                 setOwnedListsCount(response.ownedListsCount);
                 setSharedListsCount(response.sharedListsCount);
             }).catch(err => console.error("Error fetching profile data:", err));
@@ -60,19 +59,20 @@ const ProfilePage = () => {
 
     useFocusEffect(
         useCallback(() => {
-            if (!token) {
-                setProfile({});
-                setOwnedListsCount(0);
-                setSharedListsCount(0);
-                navigation.navigate("Main", { screen: "Home" });
+            if (token) {
+                fetchProfile();
+                return;
             }
-            else fetchProfile();
+            logout();
+            setOwnedListsCount(0);
+            setSharedListsCount(0);
+            navigation.navigate("Main", { screen: "Home" });
         }, [token, navigation])
     );
 
 
     const logout = () => {
-        dispatch(removeToken());
+        lo();
         navigation.navigate("Main", { screen: "Home" });
     };
 
@@ -107,7 +107,7 @@ const ProfilePage = () => {
             <Text style={styles.header}>Profile</Text>
 
             <Image
-              source={profile?.profilePic ? { uri: profile.profilePic } : undefined}
+              source={profile.profilePic ? { uri: profile.profilePic } : undefined}
               style={styles.profilePic}
               resizeMode="cover"
             />
@@ -116,10 +116,10 @@ const ProfilePage = () => {
                 <Text style={styles.buttonText}>Change Photo</Text>
             </TouchableOpacity>
 
-            <PFPModal visible={pfpMdalVisible} setVisible={setPfpModalVisible} fetchProfile={fetchProfile} token={token} />
+            <PFPModal visible={pfpMdalVisible} setVisible={setPfpModalVisible} fetchProfile={fetchProfile} />
 
             <Text style={styles.profileName}>
-                {profile?.first_name} {profile?.last_name} <Text style={{ fontStyle: 'italic' }}>(@{profile?.username})</Text>
+                {profile?.first_name} {profile?.last_name} (<Text style={{ fontStyle: 'italic' }}>@{profile?.username}</Text>)
             </Text>
 
             <View style={styles.statsRow}>
@@ -127,6 +127,7 @@ const ProfilePage = () => {
                     <Text style={styles.statNumber}>{ownedListsCount}</Text>
                     <Text style={styles.text}>Owned Lists</Text>
                 </TouchableOpacity>
+                
                 <TouchableOpacity onPress={() => navigation.navigate("Main", { screen: "List" })} style={styles.statItem}>
                     <Text style={styles.statNumber}>{sharedListsCount}</Text>
                     <Text style={styles.text}>Shared Lists</Text>
@@ -135,11 +136,11 @@ const ProfilePage = () => {
 
             <PageBreak />
 
-            <EditProfileModal visible={editModalVisible} onClose={() => setEditModalVisible(false)} token={token} profile={profile} fetchProfile={fetchProfile} />
+            <EditProfileModal visible={editModalVisible} onClose={() => setEditModalVisible(false)} profile={profile} fetchProfile={fetchProfile} />
 
-            <NotificationsModal visible={notificationsModalVisible} onClose={() => setNotificationsModalVisible(false)} token={token} />
+            <NotificationsModal visible={notificationsModalVisible} onClose={() => setNotificationsModalVisible(false)} />
             
-            <PasswordModal visible={passwordModalVisible} onClose={() => setPasswordModalVisible(false)} token={token} />
+            <PasswordModal visible={passwordModalVisible} onClose={() => setPasswordModalVisible(false)} />
             
             <View style={styles.settingsContainer}>
                 {settings.map((setting, index) => (

@@ -13,7 +13,16 @@ export const register = async (req) => {
 		const password_hash = await hash(password, 10);
 		const user = await User.create({ username, email, password_hash });
 		const token = jwt.sign({ id: user.id }, SECRET);
-		return { status: 201, content: {token} };
+		const profile = {
+			username: user.username,
+			first_name: user.first_name,
+			last_name: user.last_name,
+			phone_num: user.phone_num,
+			email: user.email,
+			profilePic: user.profile_pic,
+			notifications_enabled: user.notifications_enabled,
+		};
+		return {status:200, content: {token, profile} };
 	} catch (error) {
 		throw new ApiError(400, error.message);
 	}
@@ -26,7 +35,17 @@ export const login = async (req) => {
 	
 	if (user && await compare(password, user.password_hash)) {
 		const token = jwt.sign({ id: user.id }, SECRET);
-		return {status:200, content: {token}, token};
+		const profile = {
+			username: user.username,
+			first_name: user.first_name,
+			last_name: user.last_name,
+			phone_num: user.phone_num,
+			email: user.email,
+			profilePic: user.profile_pic,
+			notifications_enabled: user.notifications_enabled,
+		};
+
+		return {status:200, content: {token, profile} };
 	} else throw new ApiError(401, 'Invalid email or password');
 };
 

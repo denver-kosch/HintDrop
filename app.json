@@ -5,6 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
+    "owner": "dkosch1",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -47,7 +48,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "087e011c-4621-4c5b-89be-a55c4d551546"
+        "projectId": "f020701d-73b5-48bd-85af-58d0daa065e5"
       }
     }
   }

@@ -468,15 +468,31 @@ const createListDetailStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets
 		header: base.centeredHeader,
 		text: base.text,
 		optionsRow: {
-			flex:1,
 			flexDirection: 'row',
-			width: '50%',
-			justifyContent: 'space-between'
+			width: '75%',
+			justifyContent: 'space-between',
+			height: "auto",
+			borderColor: 'black',
+			borderWidth: 1,
 		},
 		option: {
+			padding: 10,
+			width: `${100/3}%`,
+			borderColor: 'gray',
+			borderWidth: 1,
+			height: '100%',
+		},
+		optionText: {
 			...base.text,
-			fontSize: 20
-		}
+			fontSize: 20,
+			textAlign: 'center',
+		},
+		giftContainer: {
+
+		},
+		gift: {
+
+		},
 	});
 };
 

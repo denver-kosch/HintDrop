@@ -1,5 +1,5 @@
 import { Modal, View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert } from "react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import apiCall from "@/services/apiCall";
 import { useModalStyles } from "@/styles";
 import { EditProfileModalProps } from "@/types";
@@ -8,12 +8,12 @@ import useUsernameAvailability from "@/hooks/useUsernameAvailablity";
 
 
 
-const EditProfileModal: React.FC<EditProfileModalProps> = ({ visible, onClose, token, profile, fetchProfile }) => {
+const EditProfileModal: React.FC<EditProfileModalProps> = ({ visible, onClose, profile, fetchProfile }) => {
     const [first_name, setFirst_name] = useState(profile?.first_name || '');
     const [last_name, setLast_name] = useState(profile?.last_name || '');
     const [phone_num, setPhone_num] = useState(profile?.phone_num || '');
     const [username, setUsername] = useState(profile?.username || '');
-    const {usernameStatus, isUsernameValid} = useUsernameAvailability({username, currentUsername: profile?.username});
+    const {usernameStatus, isUsernameValid} = useUsernameAvailability({username, currentUsername: profile?.username ?? undefined});
     
     const styles = useModalStyles();
 

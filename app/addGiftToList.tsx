@@ -29,11 +29,13 @@ const AddGiftPage = ({ route }: any) => {
 
 
     
-
     return(
         <SafeAreaView style={styles.safeArea}>
             <KeyboardAvoidingView style={styles.container}>
-                <Text style={styles.header}>Add gift to "{listName}"</Text>
+                <Text style={styles.header}>Add a Gift</Text>
+
+
+                
             </KeyboardAvoidingView>
         </SafeAreaView>
     )

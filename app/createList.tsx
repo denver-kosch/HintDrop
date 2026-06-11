@@ -3,21 +3,24 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { useCreateListStyles } from '@/styles';
 import apiCall from '@/services/apiCall';
-import { useSelector } from 'react-redux';
-import { AuthState } from '@/types';
+import { getToken } from '@/services/storeFuncs';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/types';
+
+type NewListResponse = {
+    success: boolean;
+    listId: number
+};
 
 const CreateList = () => {
     const [name, setName] = useState('');
     const styles = useCreateListStyles();
     const [description, setDescription] = useState('');
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-    const token = useSelector((state: AuthState) => state.auth.token);
 
     const createList = async () => {
-        const newList = await apiCall<{success: boolean, listId: number}>('lists', {body: { name, description }, method: 'POST', auth: true });
+        const newList = await apiCall<NewListResponse>('lists', {body: { name, description }, method: 'POST' });
         if (newList.success) {
             setName('');
             setDescription('');

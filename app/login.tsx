@@ -2,19 +2,19 @@ import { useState, useCallback } from 'react';
 import apiCall from '@/services/apiCall';
 import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
-import { RootStackParamList, AuthState } from '@/types';
-import { useDispatch, useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
+import { AuthResponse } from '@/types';
 import { useLoginStyles } from '@/styles';
 import useUsernameAvailability from '@/hooks/useUsernameAvailablity';
 import UsernameStatusIndicator from '@/components/usernameStatusIndicator';
-import { setToken } from '@/store';
+import { login } from '@/services/storeFuncs';
+import { useToken } from '@/hooks/storeHooks';
+import { useAppNavigation } from '@/hooks/appNav';
 
 const LoginPage = () => {
-    const dispatch = useDispatch();
-    const token = useSelector((state: AuthState) => state.auth.token);
+    const token = useToken();
     const styles = useLoginStyles();
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+    const navigation = useAppNavigation();
     const [isLogin, setIsLogin] = useState(true);
 
     useFocusEffect(useCallback(() => { if (token) navigation.navigate("Main", { screen: "Home" }) }, [token, navigation]));
@@ -26,11 +26,11 @@ const LoginPage = () => {
         const [password, setPassword] = useState('');
 
         const handleSubmit = async () => {
-            await apiCall<{success: boolean, token: string}>('auth/login', { body: { email, password }, method: 'POST', auth: false })
+            await apiCall<AuthResponse>('auth/login', { body: { email, password }, method: 'POST', auth: false })
                 .then(response => {
                     setEmail('');
                     setPassword('');
-                    dispatch(setToken(response.token));
+                    login(response);
                     navigation.navigate("Main", { screen: "Home" });
             }).catch(err => {
                 console.error("Login error:", err);
@@ -78,13 +78,13 @@ const LoginPage = () => {
                 return;
             }
             
-            await apiCall<{success: boolean, token: string}>('auth/register', { body: { email, username, password }, method: 'POST', auth: false })
+            await apiCall<AuthResponse>('auth/register', { body: { email, username, password }, method: 'POST', auth: false })
                 .then(response => {
                     setEmail('');
                     setUsername('');
                     setPassword('');
                     setIsLogin(true);
-                    dispatch(setToken(response.token));
+                    login(response)
                     navigation.navigate("Main", { screen: "Home" });
                 }).catch(err => {
                     console.error("Registration error:", err);

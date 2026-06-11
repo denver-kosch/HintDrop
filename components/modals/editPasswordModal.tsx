@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Modal, View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert } from "react-native";
 
 
-const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose, token }) => {
+const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -25,7 +25,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose, token }
             return;
         }
         await apiCall('users/me/password', { body: { currentPassword: currentPassword.trim(), newPassword: newPassword.trim() }, method: 'PATCH' })
-            .then(response => {
+            .then(() => {
                 Alert.alert("Password Changed", "Your password was changed successfully.");
                 wipeModal();
             }).catch(err => {

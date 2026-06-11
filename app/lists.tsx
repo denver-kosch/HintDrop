@@ -1,20 +1,20 @@
 import { useListStyles } from '@/styles';
-import { useFocusEffect, useNavigation, NavigationProp } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { Suspense, useCallback, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import apiCall from '@/services/apiCall';
-import { RootStackParamList, AuthState, List } from '@/types';
-import { useSelector } from 'react-redux';
+import { List } from '@/types';
 import PageBreak from '@/components/pagebreak';
 import LoadingIcon from '@/components/loadingIcon';
-
+import { useToken } from '@/hooks/storeHooks';
+import { useAppNavigation } from '@/hooks/appNav';
 
 
 const ListsPage = () => {
+	const token = useToken();
 	const styles = useListStyles();
-	const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-	const token = useSelector((state: AuthState) => state.auth.token);
+	const navigation = useAppNavigation();
 	const [lists, setLists] = useState<{ owned: List[], shared: List[] }>({ owned: [], shared: [] });
 	const [gettingLists, setGettingLists] = useState(false);
 
@@ -22,12 +22,10 @@ const ListsPage = () => {
 		useCallback(() => {
 			setGettingLists(true);
 			const fetchLists = async () => {
-				const response = await apiCall<{lists: {owned: Array<List>, shared: Array<List>}}>('lists')
-				.then(response => setLists(response.lists))
-				.catch(err => console.error("Error fetching lists:", err));
+				const response = await apiCall<{lists: {owned: Array<List>, shared: Array<List>}}>('lists').then(response => setLists(response.lists)).catch(err => console.error("Error fetching lists:", err));
 				setGettingLists(false);
 				return response;
-			};
+			}
 			if (token) fetchLists();
 			else setLists({ owned: [], shared: [] });
 			setGettingLists(false);
@@ -65,16 +63,16 @@ const ListsPage = () => {
 	<View style={styles.container}>
 		<View style={styles.topBar}>
 			<Text style={[styles.header, {width: '50%'}]}>Lists</Text>
-			<TouchableOpacity style={styles.plusButton} onPress={() => navigation.navigate('CreateList')}>
+			<TouchableOpacity style={styles.plusButton} onPress={() => navigation.navigate('CreateList')} disabled={!token}>
 				<Text style={styles.plusButtonText}>+</Text>
 			</TouchableOpacity>
 		</View>
 
-		<ListBlock title="Your Lists:" lists={lists.owned} shared={false}/>
+		<ListBlock title="Your Lists:" lists={lists.owned} shared={false} />
 		
 		<PageBreak />
 		
-		<ListBlock title="Shared Lists:" lists={lists.shared} shared={true}/>
+		<ListBlock title="Shared Lists:" lists={lists.shared} shared={true} />
 	</View>
 	</SafeAreaView>
 	)

@@ -1,27 +1,12 @@
 import { ScrollView, Text, View } from "react-native";
-import { useCallback, useState } from "react";
-import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useHomeStyles } from "@/styles"
-import apiCall from "@/services/apiCall";
-import { useSelector } from "react-redux";
-import { AuthState } from "@/types";
+import { useProfile } from "@/hooks/storeHooks";
 
 
 export default function HomePage() {
-	const token = useSelector((state: AuthState) => state.auth.token);
+	const { first_name: name } = useProfile();
 	const styles = useHomeStyles();
-	const [name, setName] = useState<String>("");
-
-	useFocusEffect(
-		useCallback(() => {
-			const fetchUser = async () => apiCall<{ userData: { first_name: string} }>('users/me', { body: {fields: ['first_name'] }})
-				.then(user => setName(user?.userData?.first_name || ""))
-				.catch(err => console.error("Error fetching user data:", err));
-			if (token) fetchUser();
-			else setName("");
-		}, [token])
-	);
 
 
 	const NotLoggedInScreen = () => {
@@ -32,7 +17,7 @@ export default function HomePage() {
 	const IndexContents = () => {
 	return ( 
 		<View style={{ width: '100%' }}>
-			<Text style={styles.header}>Welcome{(name) ? `, ${name}` : ""}!</Text>
+			<Text style={styles.header}>Welcome{name ? ` ${name}` : ""}!</Text>
 
 		</View>
 	);

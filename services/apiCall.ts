@@ -1,5 +1,5 @@
 import ENDPOINT from "./serverEndpoint";
-import { store } from "@/store";
+import { getToken } from "./storeFuncs";
 
 type ApiMethod = "GET" | "POST" | "PATCH" | "DELETE" | "PUT";
 
@@ -27,7 +27,7 @@ type ApiRequestOptions = {
 };
 
 async function apiCall<T=unknown>(api: string, { method = "GET", body = {}, headers = {}, auth = true}: ApiRequestOptions = {}) : Promise<T>{
-    const token = auth ? store.getState().auth.token : null;
+    const token = auth ? getToken() : null;
     const isGet = method === "GET";
     const isFormData = body instanceof FormData;
     const apiLink = buildUrl(api, isGet && !isFormData ? body : undefined);
