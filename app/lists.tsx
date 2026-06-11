@@ -1,15 +1,40 @@
 import { useListStyles } from '@/styles';
 import { useFocusEffect } from '@react-navigation/native';
-import { Suspense, useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { useCallback, useState } from 'react';
+import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import apiCall from '@/services/apiCall';
-import { List } from '@/types';
+import { List, ListBlockProps, ListPreviewProps } from '@/types';
 import PageBreak from '@/components/pagebreak';
-import LoadingIcon from '@/components/loadingIcon';
 import { useToken } from '@/hooks/storeHooks';
 import { useAppNavigation } from '@/hooks/appNav';
 
+const ListPreview = ({ list, shared, styles, navigation }: ListPreviewProps) => {
+	const { id, name, description, owner } = list;
+	return (
+		<TouchableOpacity onPress={() => navigation.navigate('ListDetail', { id })} style={styles.listPreview} key={id}>
+			<View>
+				<Text style={styles.listName}>{name}</Text>
+				<Text style={styles.listDescription}>{description}</Text>
+				{shared && <Text style={styles.listOwner}>Owner: {owner}</Text>}
+			</View>
+		</TouchableOpacity>
+	)
+};
+
+const ListBlock = ({title, lists, shared, styles, navigation } : ListBlockProps) => {
+	return (
+		<View style={styles.listBlock}>
+			<Text style={styles.blockHeader}>{title}</Text>
+			<FlatList
+				data={lists}
+				keyExtractor={list => String(list.id)}
+				renderItem={({item}) => <ListPreview list={item} shared={shared} styles={styles} navigation={navigation} />}
+				ListEmptyComponent={<Text style={styles.emptyState}>No lists to display.</Text>}
+			/>
+		</View>
+	)
+};
 
 const ListsPage = () => {
 	const token = useToken();
@@ -32,32 +57,6 @@ const ListsPage = () => {
 		}, [token])
 	);
 
-	const ListPreview = ({ list, shared }: { list: List, shared: boolean }) => {
-		const { id, name, description, owner } = list;
-		return (
-			<TouchableOpacity onPress={() => navigation.navigate('ListDetail', { id })} style={styles.listPreview} key={id}>
-				<View>
-					<Text style={styles.listName}>{name}</Text>
-					<Text style={styles.listDescription}>{description}</Text>
-					{shared && <Text style={styles.listOwner}>Owner: {owner}</Text>}
-				</View>
-			</TouchableOpacity>
-		)
-	};
-
-	const ListBlock = ({title, lists, shared } : { title: string, lists: List[], shared: boolean }) => {
-		return (
-			<View style={styles.listBlock}>
-				<Text style={styles.blockHeader}>{title}</Text>
-				<Suspense fallback={<ActivityIndicator size="large" color="#b8a96e" />}>
-					{gettingLists ? <LoadingIcon/> :
-					lists.length > 0 ? <ScrollView>{lists.map(list => <ListPreview key={list.id} list={list} shared={shared} />)}</ScrollView> :
-					<Text style={styles.emptyState}>No lists to display.</Text>}
-				</Suspense>
-			</View>
-		)
-	};
-
 	return (
 	<SafeAreaView style={styles.safeArea} edges={['top']}>
 	<View style={styles.container}>
@@ -68,11 +67,11 @@ const ListsPage = () => {
 			</TouchableOpacity>
 		</View>
 
-		<ListBlock title="Your Lists:" lists={lists.owned} shared={false} />
+		<ListBlock title="Your Lists:" lists={lists.owned} shared={false} styles={styles} navigation={navigation} />
 		
 		<PageBreak />
 		
-		<ListBlock title="Shared Lists:" lists={lists.shared} shared={true} />
+		<ListBlock title="Shared Lists:" lists={lists.shared} shared={true} styles={styles} navigation={navigation} />
 	</View>
 	</SafeAreaView>
 	)

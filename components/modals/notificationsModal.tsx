@@ -1,4 +1,4 @@
-import { usenotifications_enabled } from "@/hooks/storeHooks";
+import { useNotificationsEnabled } from "@/hooks/storeHooks";
 import apiCall from "@/services/apiCall";
 import { applyProfile } from "@/services/storeFuncs";
 import { useModalStyles } from "@/styles";
@@ -8,7 +8,7 @@ import { Modal, View, Text, Switch, TouchableOpacity, Alert } from "react-native
 
 const NotificationsModal: React.FC<NotificationsModalProps> = ({ visible, onClose }) => {
     const styles = useModalStyles();
-	const notifications_enabled = usenotifications_enabled() ?? false;
+	const notifications_enabled = useNotificationsEnabled() ?? false;
 
 
 	const changeEnabled = async (value: boolean) => {

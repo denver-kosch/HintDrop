@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import apiCall from "../services/apiCall";
 
-export type UsernameStatus = | "idle" | "available" | "taken" | "invalid" | "checking";
+export type UsernameStatus = "idle" | "available" | "taken" | "invalid" | "checking";
 
 type UseUsernameAvailabilityOptions = {
     username: string;
@@ -22,6 +22,8 @@ const useUsernameAvailability = ({username, currentUsername, minLength = 5, dela
 			return;
 		}
 
+		const controller = new AbortController();
+
 		const timeout = setTimeout(async () => {
 			if (cleanUsername.length < minLength) {
 				setUsernameStatus("invalid");
@@ -31,24 +33,20 @@ const useUsernameAvailability = ({username, currentUsername, minLength = 5, dela
 			setUsernameStatus("checking");
 
 			try {
-				const response = await apiCall<{ success: boolean; available: boolean; }>("users/check-username", { method: "POST", body: { username: cleanUsername } });
+				const response = await apiCall<{ success: boolean; available: boolean; }>("users/check-username", { method: "POST", body: { username: cleanUsername } , signal: controller.signal});
 				if (!response?.success) {
 					setUsernameStatus("idle");
 					return;
 				}
 				setUsernameStatus(response.available ? "available" : "taken");
-			} catch {
-				setUsernameStatus("idle");
+			} catch (err) {
+				if (err instanceof Error && err.name === "AbortError") return;
+            	setUsernameStatus("idle");
 			}
 		}, delay);
 		return () => clearTimeout(timeout);
 	}, [username, currentUsername, minLength, delay]);
-	return {
-		usernameStatus,
-		isUsernameValid:
-			usernameStatus === "available" ||
-			username.trim() === currentUsername,
-	};
+	return { usernameStatus, isUsernameValid: usernameStatus === "available" || username.trim() === currentUsername };
 };
 
 export default useUsernameAvailability;

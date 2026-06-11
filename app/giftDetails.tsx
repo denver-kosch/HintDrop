@@ -16,10 +16,14 @@ function GiftDetailsPage({ route }: any) {
 
     useFocusEffect(
         useCallback(() => {
-            const getGift = async () => await apiCall(`gifts/${id}`).then((res: any) => {setGift(res.gift)}).catch(err => console.error(err));
-            setLoading(true);
+            const getGift = async () => {
+                setLoading(true);
+                await apiCall(`gifts/${id}`)
+                .then((res: any) => {setGift(res.gift)})
+                .catch(err => console.error(err))
+                .finally(() => setLoading(false));
+            }
             getGift();
-            setLoading(false);
     }, [id]))
 
     if (loading) return <View><Text>Loading...</Text></View>;

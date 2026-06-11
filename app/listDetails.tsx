@@ -1,13 +1,20 @@
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useListDetailStyles } from '@/styles';
 import { useCallback, useState } from 'react';
-import { List, Gift } from '@/types';
+import { List, Gift, GiftRowProps, ListOptionProps } from '@/types';
 import { useFocusEffect } from '@react-navigation/native';
 import apiCall from '@/services/apiCall';
 import EditListModal from '@/components/modals/editListModal';
 import { useAppNavigation } from '@/hooks/appNav';
 
+const GiftRow = ({gift, styles, navigation}: GiftRowProps) => (
+    <View style={styles.gift}>
+        <Text style={styles.text} onPress={() => { navigation.navigate("GiftDetail", { id: gift.id })}}>{gift.name}</Text>
+    </View>
+);
+
+const ListOption = ({option, styles}: ListOptionProps) => <TouchableOpacity onPress={option.fn} style={styles.option}><Text style={styles.optionText} >{option.name}</Text></TouchableOpacity>;
 
 const ListDetailsPage = ({ route }: any) => {
     const { id } = route.params;
@@ -18,39 +25,31 @@ const ListDetailsPage = ({ route }: any) => {
     const [loading, setLoading] = useState<Boolean>(false);
     const [editModalVisible, setEditModalVisible] = useState(false);
 
-    if (loading) return <View><Text>Loading...</Text></View>;
-
     const fetchList = async () => {
+        setLoading(true);
         await apiCall(`/lists/${id}`)
         .then((listContent: any) => {
             setGifts(listContent.gifts);
             setList(listContent.list);
-        }).catch(err => console.error("Error getting list details:", err));
+        }).catch(err => console.error("Error getting list details:", err))
+        .finally(() => setLoading(false));
     };
 
     useFocusEffect(
         useCallback(() => {
-            setLoading(true);
             fetchList();
-            setLoading(false);
         }, [route])
     );
 
-
-    const GiftRow = ({gift}: {gift: Gift}) => (
-        <View style={styles.gift}>
-            <Text style={styles.text} onPress={() => { navigation.navigate("GiftDetail", { id: gift.id })}}>{gift.name}</Text>
-        </View>
-);
-
-    const ListOption = ({option}: {option: {name: string, fn: () => void}}) => <TouchableOpacity onPress={option.fn} style={styles.option}><Text style={styles.optionText} >{option.name}</Text></TouchableOpacity>;
 
     const options = [
         {name: "Add Item", fn: () => navigation.navigate("AddGift", {listId: id, listName: list?.name})},
         {name: "Edit", fn: () => setEditModalVisible(true)},
         {name: "Share", fn: () => {}},
+        {name: "Delete List", fn: () => {}}
     ];
 
+    if (loading) return <View><Text>Loading...</Text></View>;
 
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -58,14 +57,16 @@ const ListDetailsPage = ({ route }: any) => {
                 <Text style={styles.header}>{list?.name}</Text>
                 
                 {list?.role === "owner" ? <View style={styles.optionsRow}>
-                    {options.map((option, idx) => <ListOption key={idx} option={option} />)}
+                    {options.map((option, idx) => <ListOption key={idx} option={option} styles={styles} />)}
                 </View> : <View style={{marginTop: "6%"}}/>}
 
-                <EditListModal visible={editModalVisible} setVisible={setEditModalVisible} fetchList={fetchList} />
+                <EditListModal visible={editModalVisible} onClose={() => setEditModalVisible(false)} fetchList={fetchList} />
 
-                <ScrollView style={styles.giftContainer}>
-                    {gifts.map(gift => <GiftRow key={gift.id} gift={gift} />)}
-                </ScrollView>
+                <FlatList style={styles.giftContainer}
+                    data={gifts}
+                    keyExtractor={(gift) => String(gift.id)}
+                    renderItem={({ item }) => <GiftRow gift={item} styles={styles} navigation={navigation} />}
+                />
             </View>
         </SafeAreaView>
     )

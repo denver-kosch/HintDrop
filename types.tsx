@@ -1,7 +1,9 @@
+import { NavigationProp } from "@react-navigation/native";
 import { UserState } from "./store";
+import { HomeStylesProps, ListDetailStylesProps, ListStylesProps, LoginStylesProps, ProfileStylesProps } from "./styles";
 
 export type RootStackParamList = {
-    Main: { screen?: "Home" | "List" | "Profile" | "Login" } | undefined;
+    Main: { screen: "Home" | "List" | "Profile" | "Login" };
     Login: undefined;
     ListDetail: { id: number };
     CreateList: undefined;
@@ -9,6 +11,57 @@ export type RootStackParamList = {
     Register: undefined;
     GiftDetail: { id: number };
     AddGift: { listId: number, listName: string | any };
+};
+
+export type LoginPageProps = {
+    styles: LoginStylesProps;
+    navigation: NavigationProp<RootStackParamList>
+};
+
+export type RegisterPageProps = LoginPageProps & {
+  setIsLogin: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export type HomePageProps = {
+    styles: HomeStylesProps;
+    name: string | null;
+};
+
+export type GiftRowProps = {
+    gift: Gift;
+    styles: ListDetailStylesProps;
+    navigation: NavigationProp<RootStackParamList>;
+};
+
+export type ListOptionProps = {
+    option: {
+        name: string, 
+        fn: () => void
+    },
+    styles:ListDetailStylesProps
+};
+
+export type ListPreviewProps = {
+    styles: ListStylesProps;
+    list: List;
+    shared: boolean;
+    navigation: NavigationProp<RootStackParamList>;
+};
+
+export type ListBlockProps = {
+    styles: ListStylesProps;
+    title: string;
+    lists: List[];
+    shared: boolean;
+    navigation: NavigationProp<RootStackParamList>;
+};
+
+export type ProfileSettingsRowProps = {
+    styles: ProfileStylesProps;
+    settings: {
+        label: string;
+        onPress: () => void;
+    }[];
 };
 
 export type AuthState = {
@@ -29,24 +82,29 @@ export type AuthResponse = {
 		profilePic: string;
 		notifications_enabled: boolean;
 	};
-}
+};
 
-export interface EditProfileModalProps {
+type ModalProps = {
     visible: boolean;
     onClose: () => void;
+};
+
+export type EditProfileModalProps = ModalProps & {
     profile: UserState;
     fetchProfile: () => void;
-}
+};
 
-export interface NotificationsModalProps {
-    visible: boolean;
-    onClose: () => void;
-}
+export type NotificationsModalProps = ModalProps;
 
-export interface PasswordModalProps {
-    visible: boolean;
-    onClose: () => void;
-}
+export type PasswordModalProps = ModalProps;
+
+export type EditListModalProps = ModalProps & {
+  fetchList: () => void;
+};
+
+export type PFPModalProps = ModalProps & {
+    fetchProfile: () => void;
+};
 
 export type UserProfile = {
     first_name?: string;
@@ -77,4 +135,4 @@ export type Gift = {
     quantity?: number;
     priority?: number;
     reservedBy?: UserProfile;
-}
+};

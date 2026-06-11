@@ -3,14 +3,10 @@ import { View, Text, Image, TouchableOpacity, Modal, Alert } from "react-native"
 import * as ImagePicker from "expo-image-picker";
 import apiCall from "@/services/apiCall";
 import { useModalStyles } from "@/styles";
+import { PFPModalProps } from "@/types";
 
-type PFPModalProps = {
-  visible: boolean;
-  setVisible: (visible: boolean) => void;
-  fetchProfile: () => void;
-};
 
-const PFPModal: FC<PFPModalProps> = ({ visible, setVisible, fetchProfile }) => {
+const PFPModal: FC<PFPModalProps> = ({ visible, onClose, fetchProfile }) => {
     const styles = useModalStyles();
     const [image, setImage] = useState<any | null>(null);
 
@@ -45,12 +41,12 @@ const PFPModal: FC<PFPModalProps> = ({ visible, setVisible, fetchProfile }) => {
     };
     
     const submitImage = async () => {
-        setVisible(false);
+        onClose;
         await updateProfilePic(image);
         setImage(null);
     };
     
-    return <Modal visible={visible} transparent animationType="slide" onRequestClose={() => setVisible(false)}>
+    return <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
         <View style={styles.modalBackdrop}>
             <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Change Profile Picture</Text>
@@ -67,7 +63,7 @@ const PFPModal: FC<PFPModalProps> = ({ visible, setVisible, fetchProfile }) => {
                 <Text style={styles.buttonText}>Upload</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => setVisible(false)}>
+                <TouchableOpacity onPress={onClose}>
                 <Text style={styles.cancelText}>Cancel</Text>
                 </TouchableOpacity>
             </View>

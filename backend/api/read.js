@@ -1,6 +1,6 @@
 import { User, List, UserList, Gift } from "../models.js";
 import { ApiError, makeBackendUrl } from "../functions.js";
-import { Op } from "sequelize";
+import { Op, fn, col } from "sequelize";
 
 const flattenMembership = (membership) => {
 	const { members, is_shareable, ...listData } = membership.list.toJSON();
@@ -104,13 +104,16 @@ export const getProfileInfo = async (req) => {
 		const user = await User.findByPk(id, { attributes: requestedFields?.length ? requestedFields : SAFE_USER_FIELDS });
 		if (!user) throw new ApiError(404, "User not found");
 
-		const ownedListsCount = await UserList.count({where: { user_id: id, archived_at: null, role: "owner" } });
-		const sharedListsCount = await UserList.count({where: { user_id: id, archived_at: null, role: { [Op.ne]: "owner" } } });
+		const counts = (await UserList.findAll({ where: { user_id: id, archived_at: null }, attributes: [ "role", [fn("COUNT", col("id")), "count"]], group: ["role"], raw: true }))
+		.reduce((acc, c) => {
+				acc[c.role === "owner" ? "owned" : "shared"] += Number(c.count);
+				return acc;
+		}, { owned: 0, shared: 0 });
 
 		const {has_pfp, pfp_version, ...userData} = user.toJSON();
 		if (!requestedFields || requestedFields.includes("profilePic")) userData.profilePic = has_pfp ? makeBackendUrl(`/images/profilePic/${id}.png?v=${pfp_version}`) : makeBackendUrl(`/images/profilePic/placeholder.png`);
 		
-		return { status: 200, content: { userData, ownedListsCount, sharedListsCount } };
+		return { status: 200, content: { userData, ownedListsCount: counts.owned, sharedListsCount: counts.shared } };
 	} catch (error) {
 		throw error instanceof ApiError ? error : new ApiError(500, error.message);
 	}

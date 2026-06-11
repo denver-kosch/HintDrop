@@ -3,10 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { useCreateListStyles } from '@/styles';
 import apiCall from '@/services/apiCall';
-import { getToken } from '@/services/storeFuncs';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '@/types';
+import { useAppNavigation } from '@/hooks/appNav';
 
 type NewListResponse = {
     success: boolean;
@@ -17,7 +14,7 @@ const CreateList = () => {
     const [name, setName] = useState('');
     const styles = useCreateListStyles();
     const [description, setDescription] = useState('');
-    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+    const navigation = useAppNavigation();
 
     const createList = async () => {
         const newList = await apiCall<NewListResponse>('lists', {body: { name, description }, method: 'POST' });

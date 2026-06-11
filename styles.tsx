@@ -477,7 +477,7 @@ const createListDetailStyles = (colorScheme: ColorSchemeName, insets: EdgeInsets
 		},
 		option: {
 			padding: 10,
-			width: `${100/3}%`,
+			width: `${100/4}%`,
 			borderColor: 'gray',
 			borderWidth: 1,
 			height: '100%',
@@ -655,5 +655,17 @@ export const useModalStyles = () => useThemedStyles(createModalStyles);
 export const useUSIStyles = () => useThemedStyles(createUSIStyles);
 export const useGiftDetailStyles = () => useThemedStyles(createGiftDetailStyles);
 export const useAddGiftStyles = () => useThemedStyles(createAddGiftStyles);
+
+export type HomeStylesProps = ReturnType<typeof useHomeStyles>;
+export type LoginStylesProps = ReturnType<typeof useLoginStyles>;
+export type ProfileStylesProps = ReturnType<typeof useProfileStyles>;
+export type ListStylesProps = ReturnType<typeof useListStyles>;
+export type CreateListStylesProps = ReturnType<typeof useCreateListStyles>;
+export type ListDetailStylesProps = ReturnType<typeof useListDetailStyles>;
+export type ModalStylesProps = ReturnType<typeof useModalStyles>;
+export type USIStylesProps = ReturnType<typeof useUSIStyles>;
+export type GiftDetailStylesProps = ReturnType<typeof useGiftDetailStyles>;
+export type AddGiftStylesProps = ReturnType<typeof useAddGiftStyles>;
+
 
 export type { AppTheme, BaseStyles };
